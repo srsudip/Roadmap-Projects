@@ -260,6 +260,43 @@ public class Database {
         ps.close();
     }
 
+    public void promoteUser(int userId) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("UPDATE users SET role='ADMIN' WHERE id=? AND role='USER'");
+        ps.setInt(1, userId);
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    public void demoteUser(int userId) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("UPDATE users SET role='USER' WHERE id=? AND role='ADMIN'");
+        ps.setInt(1, userId);
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    public List<Movie> searchMovies(String query) throws SQLException {
+        List<Movie> movies = new ArrayList<>();
+        PreparedStatement ps = conn.prepareStatement(
+            "SELECT * FROM movies WHERE title LIKE ? OR genre LIKE ? ORDER BY title");
+        String q = "%" + query + "%";
+        ps.setString(1, q);
+        ps.setString(2, q);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            movies.add(new Movie(
+                rs.getInt("id"),
+                rs.getString("title"),
+                rs.getString("description"),
+                rs.getString("genre"),
+                rs.getInt("duration_minutes"),
+                rs.getString("poster_url")
+            ));
+        }
+        rs.close();
+        ps.close();
+        return movies;
+    }
+
     // ======================== SHOWTIMES ========================
 
     public List<Showtime> getShowtimesForDate(LocalDate date) throws SQLException {
@@ -416,6 +453,7 @@ public class Database {
             + "JOIN showtimes s ON r.showtime_id = s.id "
             + "JOIN movies m ON s.movie_id = m.id "
             + "WHERE r.user_id = ? AND r.status = 'ACTIVE' "
+            + "AND (s.show_date > date('now') OR (s.show_date = date('now') AND s.show_time >= time('now'))) "
             + "ORDER BY s.show_date, s.show_time");
         ps.setInt(1, userId);
         ResultSet rs = ps.executeQuery();

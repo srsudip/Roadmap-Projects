@@ -611,6 +611,9 @@ public class App extends Application {
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
+                Button editBtn = createSmallButton("Edit", "#0f3460");
+                editBtn.setOnAction(e -> showEditMovieDialog(m, root));
+
                 Button deleteBtn = createSmallButton("Delete", "#e94560");
                 deleteBtn.setOnAction(e -> {
                     Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete this movie?",
@@ -627,7 +630,7 @@ public class App extends Application {
                     });
                 });
 
-                card.getChildren().addAll(info, spacer, deleteBtn);
+                card.getChildren().addAll(info, spacer, editBtn, deleteBtn);
                 movieList.getChildren().add(card);
             }
         } catch (Exception e) {
@@ -637,6 +640,76 @@ public class App extends Application {
         scrollPane.setContent(movieList);
         content.getChildren().addAll(header, form, new Separator(), scrollPane);
         root.setCenter(content);
+    }
+
+    // ======================== ADMIN: EDIT MOVIE DIALOG ========================
+
+    private void showEditMovieDialog(Database.Movie movie, BorderPane root) {
+        Stage dialog = new Stage();
+        dialog.setTitle("Edit Movie - " + movie.title);
+
+        VBox vbox = new VBox(12);
+        vbox.setPadding(new Insets(20));
+        vbox.setStyle("-fx-background-color: #16213e;");
+
+        Label header = new Label("Edit Movie");
+        header.setFont(Font.font("System", FontWeight.BOLD, 18));
+        header.setTextFill(Color.WHITE);
+
+        TextField titleField = new TextField(movie.title);
+        TextArea descArea = new TextArea(movie.description != null ? movie.description : "");
+        descArea.setPrefRowCount(3);
+        ComboBox<String> genreBox = new ComboBox<>();
+        genreBox.getItems().addAll("Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Romance", "Crime", "Thriller");
+        genreBox.setValue(movie.genre);
+        TextField durationField = new TextField(String.valueOf(movie.durationMinutes));
+        TextField posterField = new TextField(movie.posterUrl != null ? movie.posterUrl : "");
+
+        GridPane form = new GridPane();
+        form.setHgap(10);
+        form.setVgap(8);
+        form.setStyle("-fx-background-color: #1a1a2e; -fx-background-radius: 8; -fx-padding: 15;");
+        form.add(new Label("Title:"), 0, 0); form.add(titleField, 1, 0);
+        form.add(new Label("Genre:"), 0, 1); form.add(genreBox, 1, 1);
+        form.add(new Label("Duration:"), 0, 2); form.add(durationField, 1, 2);
+        form.add(new Label("Description:"), 0, 3); form.add(descArea, 1, 3);
+        form.add(new Label("Poster URL:"), 0, 4); form.add(posterField, 1, 4);
+
+        HBox buttons = new HBox(10);
+        Button saveBtn = createButton("Save Changes", "#4ecca3");
+        Button cancelBtn = createButton("Cancel", "#e94560");
+        buttons.getChildren().addAll(saveBtn, cancelBtn);
+
+        saveBtn.setOnAction(e -> {
+            try {
+                String title = titleField.getText().trim();
+                String desc = descArea.getText().trim();
+                String genre = genreBox.getValue();
+                int duration = Integer.parseInt(durationField.getText().trim());
+                String poster = posterField.getText().trim();
+
+                if (title.isEmpty()) {
+                    showAlert(Alert.AlertType.WARNING, "Validation", "Title is required.");
+                    return;
+                }
+
+                db.updateMovie(movie.id, title, desc, genre, duration, poster);
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Movie updated!");
+                dialog.close();
+                showManageMovies(root);
+            } catch (NumberFormatException ex) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Duration must be a number.");
+            } catch (Exception ex) {
+                showAlert(Alert.AlertType.ERROR, "Error", ex.getMessage());
+            }
+        });
+
+        cancelBtn.setOnAction(e -> dialog.close());
+
+        vbox.getChildren().addAll(header, form, buttons);
+        Scene scene = new Scene(vbox, 450, 380);
+        dialog.setScene(scene);
+        dialog.show();
     }
 
     // ======================== ADMIN: MANAGE SHOWTIMES ========================
@@ -863,7 +936,49 @@ public class App extends Application {
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                card.getChildren().addAll(info, spacer);
+                if (userId != currentUser.id) {
+                    if ("USER".equals(role)) {
+                        Button promoteBtn = createSmallButton("Promote to Admin", "#4ecca3");
+                        promoteBtn.setOnAction(e -> {
+                            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                                "Promote " + fullName + " to Admin?", ButtonType.YES, ButtonType.NO);
+                            confirm.showAndWait().ifPresent(response -> {
+                                if (response == ButtonType.YES) {
+                                    try {
+                                        db.promoteUser(userId);
+                                        showAlert(Alert.AlertType.INFORMATION, "Success", fullName + " is now an Admin.");
+                                        showUsers(root);
+                                    } catch (Exception ex) {
+                                        showAlert(Alert.AlertType.ERROR, "Error", ex.getMessage());
+                                    }
+                                }
+                            });
+                        });
+                        card.getChildren().addAll(info, spacer, promoteBtn);
+                    } else {
+                        Button demoteBtn = createSmallButton("Demote to User", "#e94560");
+                        demoteBtn.setOnAction(e -> {
+                            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                                "Demote " + fullName + " to regular user?", ButtonType.YES, ButtonType.NO);
+                            confirm.showAndWait().ifPresent(response -> {
+                                if (response == ButtonType.YES) {
+                                    try {
+                                        db.demoteUser(userId);
+                                        showAlert(Alert.AlertType.INFORMATION, "Success", fullName + " is now a regular user.");
+                                        showUsers(root);
+                                    } catch (Exception ex) {
+                                        showAlert(Alert.AlertType.ERROR, "Error", ex.getMessage());
+                                    }
+                                }
+                            });
+                        });
+                        card.getChildren().addAll(info, spacer, demoteBtn);
+                    }
+                } else {
+                    Label youLabel = new Label("(You)");
+                    youLabel.setTextFill(Color.LIGHTGRAY);
+                    card.getChildren().addAll(info, spacer, youLabel);
+                }
                 list.getChildren().add(card);
             }
             rs.close();
