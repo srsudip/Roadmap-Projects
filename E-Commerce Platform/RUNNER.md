@@ -1,12 +1,26 @@
 # RUNNER.md — E-Commerce Platform
 
+## Prerequisites
+
+| Tool | Install |
+|------|---------|
+| **Colima** | `brew install colima` |
+| **Docker CLI** | `brew install docker` |
+| **Docker Compose** | `brew install docker-compose` |
+
+## Start Colima
+
+```bash
+colima start --cpu 4 --memory 8 --disk 20
+```
+
 ## Build & Start
 
 ```bash
 docker compose up -d --build
 ```
 
-Waits ~60s for all 16 containers to become healthy. Verify with:
+Wait ~60s, then verify:
 
 ```bash
 docker compose ps
@@ -24,6 +38,12 @@ docker compose down --rmi all --volumes --remove-orphans
 # Clean orphan Docker resources system-wide
 docker image prune -af
 docker volume prune -f
+```
+
+## Stop Colima
+
+```bash
+colima stop
 ```
 
 ## URLs
