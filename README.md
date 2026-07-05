@@ -14,12 +14,15 @@ A collection of backend development projects completed as part of the **[roadmap
 | 2 | **GitHub User Activity** | A CLI app to fetch and display recent GitHub activity for any user | [roadmap.sh/projects/github-user-activity](https://roadmap.sh/projects/github-user-activity) |
 | 3 | **Expense Tracker** | A CLI + JavaFX GUI app to manage finances — add, delete, view expenses and summaries | [roadmap.sh/projects/expense-tracker](https://roadmap.sh/projects/expense-tracker) |
 | 4 | **Number Guessing Game** | A CLI game with difficulty levels, hints, timer, and high score tracking | [roadmap.sh/projects/number-guessing-game](https://roadmap.sh/projects/number-guessing-game) |
+| 5 | **Movie Reservation System** | A JavaFX GUI app with auth, seat reservation, showtimes, and admin reporting | [roadmap.sh/projects/movie-reservation-system](https://roadmap.sh/projects/movie-reservation-system) |
 
 ---
 
 ## Technologies Used
-- **Language:** Java (JDK 11+)
-- **Approach:** All projects are built with zero external dependencies, using only standard Java libraries
+- **Language:** Java 21
+- **GUI:** JavaFX
+- **Database:** SQLite
+- **Approach:** CLI tools and GUI apps with clean architecture and data persistence
 - **Focus:** CLI tools, API integration, data persistence, and clean code architecture
 
 ---
