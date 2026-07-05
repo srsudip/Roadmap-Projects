@@ -2,6 +2,8 @@
 
 A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, and Docker — following the [roadmap.sh Scalable E-Commerce Platform](https://roadmap.sh/projects/scalable-ecommerce-platform) project specification.
 
+> **Quick start:** See [`RUNNER.md`](RUNNER.md) for step-by-step setup and run instructions.
+
 ## Architecture
 
 ```
@@ -53,6 +55,7 @@ E-Commerce Platform/
 ├── .env.development                  # Dev environment variables
 ├── .env.production                   # Prod environment variables (registry, tags)
 ├── .github/workflows/ci.yml         # GitHub Actions CI/CD pipeline
+├── RUNNER.md                         # Step-by-step run instructions
 ├── database/                         # PostgreSQL init scripts
 │   ├── init-userdb.sql
 │   ├── init-productdb.sql
@@ -105,89 +108,16 @@ E-Commerce Platform/
 
 ## Docker Setup
 
-### Development (hot-reload)
-
-```bash
-docker compose up -d --build
-```
-
-- Volume mounts enable hot-reload for backend and frontend source code
-- Builds using the `development` Dockerfile target
-- All 16 containers start in ~60 seconds
-
-### Production
-
-```bash
-# Build and tag images
-docker compose -f docker-compose-prod.yml build
-
-# Or pull from registry
-docker compose -f docker-compose-prod.yml pull
-
-# Start
-docker compose -f docker-compose-prod.yml up -d
-```
-
-- Uses pre-built images from container registry (GHCR)
-- No volume mounts, no build context
-- Non-root user in production containers
-- Same health checks and dependency chains as dev
-
-### Dockerfile Stages
-
 | Stage | Purpose | Base Image |
 |-------|---------|------------|
 | `build` | Compile JAR with Maven | `maven:3.9-eclipse-temurin-21` |
 | `development` | Hot-reload runtime | `eclipse-temurin:21-jre-alpine` |
 | `production` | Minimal secure runtime | `eclipse-temurin:21-jre-alpine` + non-root user |
 
-## Prerequisites
+- **Dev:** `docker compose up -d --build` — volume mounts enable hot-reload
+- **Prod:** `docker compose -f docker-compose-prod.yml up -d` — pre-built images, no build context
 
-- Java 21+
-- Maven 3.9+
-- Docker + Docker Compose (or Colima on macOS)
-
-## Quick Start
-
-```bash
-# Clone and start everything
-git clone https://github.com/srsudip/Roadmap-Projects.git
-cd "Roadmap-Projects/E-Commerce Platform"
-docker compose up -d --build
-```
-
-All 16 containers start in ~60 seconds. Check health:
-```bash
-docker compose ps
-```
-
-Open the web UI at **http://localhost:3000**.
-
-### Useful URLs
-
-| URL | Description |
-|-----|-------------|
-| http://localhost:3000 | ShopHub Web UI |
-| http://localhost:8761 | Eureka Dashboard |
-| http://localhost:15672 | RabbitMQ Management (guest/guest) |
-| http://localhost:8080 | API Gateway (direct API access) |
-
-### Default Admin Credentials
-
-- **Username:** `admin`
-- **Password:** `admin123`
-
-## Frontend Web UI
-
-The platform includes a full-featured web interface built with Spring Boot + Thymeleaf:
-
-- **Browse Products** — 30 products with images across 5 categories, search, and category filter
-- **Shopping Cart** — Add/remove items, adjust quantities
-- **Checkout** — Shipping address, payment method selection
-- **My Orders** — View order history, cancel pending orders
-- **Admin Dashboard** — Stats, manage products, view all orders/users
-
-All prices are displayed in **euros (€)**.
+See [`RUNNER.md`](RUNNER.md) for full instructions.
 
 ## CI/CD Pipeline
 
