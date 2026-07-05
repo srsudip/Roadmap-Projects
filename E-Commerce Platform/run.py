@@ -1,29 +1,65 @@
 #!/usr/bin/env python3
 """
-E-Commerce Platform — Start, run, and clean up.
-Ctrl+C to stop and clean everything.
+E-Commerce Platform — build, run, and clean up.
+
+Start:  cleans any leftover session, builds jars on the host (mvn clean
+        package), builds Docker images, starts everything fresh.
+Stop:   Ctrl+C removes all session containers, images, volumes, and
+        runs mvn clean.
 """
 
 import subprocess
 import signal
 import sys
 import os
+import shutil
 import time
 
 COMPOSE_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.join(COMPOSE_DIR, "backend")
+FRONTEND_DIR = os.path.join(COMPOSE_DIR, "frontend", "frontend-service")
 HEALTH_TIMEOUT = 300  # seconds
+# GCS mirror of Maven Central — repo.maven.apache.org rate-limits this IP
+MVN = ["mvn", "-B", "-s", os.path.join(COMPOSE_DIR, "maven-settings.xml")]
 
 
-def run(cmd, **kwargs):
+def run(cmd, cwd=COMPOSE_DIR, **kwargs):
     """Run a command and stream output."""
-    return subprocess.run(cmd, cwd=COMPOSE_DIR, **kwargs)
+    return subprocess.run(cmd, cwd=cwd, **kwargs)
 
 
-def cleanup():
-    """Stop only e-commerce containers and their resources."""
-    print("\n[CLEANUP] Stopping e-commerce containers...")
+def docker_cleanup():
+    """Remove all session containers, images, volumes, and networks."""
+    print("\n[CLEANUP] Removing e-commerce containers, images, and volumes...")
     run(["docker", "compose", "down", "--rmi", "all", "--volumes", "--remove-orphans"])
-    print("[CLEANUP] Done.")
+    print("[CLEANUP] Docker done.")
+
+
+def maven_clean():
+    """Remove build artifacts from backend and frontend."""
+    print("[CLEANUP] Running mvn clean...")
+    run(MVN + ["clean", "-q"], cwd=BACKEND_DIR)
+    run(MVN + ["clean", "-q"], cwd=FRONTEND_DIR)
+    print("[CLEANUP] Maven done.")
+
+
+def full_cleanup():
+    docker_cleanup()
+    maven_clean()
+
+
+def build_jars():
+    """Build all jars on the host (in-container Maven hits rate limits)."""
+    print("[BUILD] Building backend jars (mvn clean package)...")
+    ret = run(MVN + ["clean", "package", "-DskipTests"], cwd=BACKEND_DIR)
+    if ret.returncode != 0:
+        print("[ERROR] Backend Maven build failed.")
+        sys.exit(1)
+    print("[BUILD] Building frontend jar...")
+    ret = run(MVN + ["clean", "package", "-DskipTests"], cwd=FRONTEND_DIR)
+    if ret.returncode != 0:
+        print("[ERROR] Frontend Maven build failed.")
+        sys.exit(1)
 
 
 def wait_for_health():
@@ -46,7 +82,7 @@ def wait_for_health():
 
 def handle_signal(sig, frame):
     """Handle Ctrl+C."""
-    cleanup()
+    full_cleanup()
     sys.exit(0)
 
 
@@ -54,10 +90,21 @@ def main():
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
-    print("[START] Building and starting all containers...")
+    for tool in ("docker", "mvn"):
+        if shutil.which(tool) is None:
+            print(f"[ERROR] '{tool}' not found on PATH. Install it first.")
+            sys.exit(1)
+
+    print("[FRESH] Cleaning up any previous session...")
+    full_cleanup()
+
+    build_jars()
+
+    print("[START] Building images and starting all containers...")
     ret = run(["docker", "compose", "up", "-d", "--build"])
     if ret.returncode != 0:
         print("[ERROR] docker compose up failed.")
+        docker_cleanup()
         sys.exit(1)
 
     print("[START] Waiting for services to become healthy...")
@@ -86,7 +133,7 @@ def main():
         pass
     finally:
         proc.terminate()
-        cleanup()
+        full_cleanup()
 
 
 if __name__ == "__main__":

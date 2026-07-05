@@ -147,8 +147,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/user-service/src:/app/backend/user-service/src
     depends_on:
       postgres-users:
         condition: service_healthy
@@ -175,8 +173,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/product-service/src:/app/backend/product-service/src
     depends_on:
       postgres-products:
         condition: service_healthy
@@ -203,8 +199,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/cart-service/src:/app/backend/cart-service/src
     depends_on:
       postgres-carts:
         condition: service_healthy
@@ -235,8 +229,6 @@ services:
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/order-service/src:/app/backend/order-service/src
     depends_on:
       postgres-orders:
         condition: service_healthy
@@ -265,8 +257,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/payment-service/src:/app/backend/payment-service/src
     depends_on:
       postgres-payments:
         condition: service_healthy
@@ -297,8 +287,6 @@ services:
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/notification-service/src:/app/backend/notification-service/src
     depends_on:
       postgres-notifications:
         condition: service_healthy
@@ -340,13 +328,12 @@ services:
       target: development
       args:
         SERVICE: frontend
+        MODULE_DIR: frontend/frontend-service
     ports:
       - "3000:3000"
     environment:
       API_GATEWAY_URL: http://api-gateway:8080
       API_GATEWAY_HOST: api-gateway
-    volumes:
-      - ./frontend/frontend-service/src:/app/frontend/frontend-service/src
     depends_on:
       api-gateway:
         condition: service_healthy

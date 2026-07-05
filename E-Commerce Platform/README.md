@@ -55,7 +55,7 @@ A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, 
 ```
 E-Commerce Platform/
 ├── run.py                            # One-command start/stop/cleanup script
-├── Dockerfile                        # Multi-stage build (build → development → production)
+├── Dockerfile                        # Packages host-built jars (development/production targets)
 ├── docker-compose.yml                # Development: hot-reload, volume mounts
 ├── docker-compose-prod.yml           # Production: pre-built images, no build context
 ├── .env.development                  # Dev environment variables
@@ -114,14 +114,15 @@ E-Commerce Platform/
 
 ## Docker Setup
 
+Jars are compiled on the host with Maven, then packaged into images (in-container Maven downloads get rate-limited by Maven Central across 9 parallel builds).
+
 | Stage | Purpose | Base Image |
 |-------|---------|------------|
-| `build` | Compile JAR with Maven | `maven:3.9-eclipse-temurin-21` |
-| `development` | Hot-reload runtime | `eclipse-temurin:21-jre-alpine` |
+| `development` | Standard runtime | `eclipse-temurin:21-jre-alpine` |
 | `production` | Minimal secure runtime | `eclipse-temurin:21-jre-alpine` + non-root user |
 
-- **Dev:** `docker compose up -d --build` — volume mounts enable hot-reload
-- **Prod:** `docker compose -f docker-compose-prod.yml up -d` — pre-built images, no build context
+- **Dev:** `python3 run.py` — builds jars, builds images, starts everything fresh
+- **Prod:** `docker compose -f docker-compose-prod.yml up -d` — pre-built registry images
 
 See [`RUNNER.md`](RUNNER.md) for full instructions.
 

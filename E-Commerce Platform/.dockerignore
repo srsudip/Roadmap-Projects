@@ -1,4 +1,8 @@
-**/target/
+# target/ jars must be in the build context (built on host); exclude the rest
+**/target/classes/
+**/target/generated-sources/
+**/target/maven-status/
+**/target/test-classes/
 **/.git
 **/.idea
 **/.vscode
