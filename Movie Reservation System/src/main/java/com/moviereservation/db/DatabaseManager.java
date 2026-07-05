@@ -174,7 +174,7 @@ public class DatabaseManager {
 
         var showtimeStmt = connection.prepareStatement(
             "INSERT INTO showtimes (movie_id, show_date, show_time, total_seats, price) VALUES (?, ?, ?, ?, ?)");
-        String[] times = {"10:00", "13:30", "17:00", "20:30"};
+        String[] times = {"10:00:00", "13:30:00", "17:00:00", "20:30:00"};
         double[] prices = {12.0, 12.0, 15.0, 18.0};
 
         int totalMovies = movies.length;
