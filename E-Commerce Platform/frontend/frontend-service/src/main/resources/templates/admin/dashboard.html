@@ -2,23 +2,38 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <body>
 <div th:fragment="content" class="container">
-    <h1 style="margin-bottom:1.5rem;">Admin Dashboard</h1>
+    <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>Overview of your store</p>
+    </div>
 
     <!-- Stats -->
     <div class="stats-grid">
         <div class="stat-card">
+            <div class="stat-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            </div>
             <div class="value" th:text="${totalOrders}">0</div>
             <div class="label">Total Orders</div>
         </div>
         <div class="stat-card">
-            <div class="value" th:text="'€' + ${totalRevenue}">$0</div>
+            <div class="stat-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="value" th:text="'€' + ${totalRevenue}">€0</div>
             <div class="label">Revenue</div>
         </div>
         <div class="stat-card">
+            <div class="stat-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </div>
             <div class="value" th:text="${totalProducts}">0</div>
             <div class="label">Products</div>
         </div>
         <div class="stat-card">
+            <div class="stat-icon amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
             <div class="value" th:text="${totalUsers}">0</div>
             <div class="label">Users</div>
         </div>
@@ -27,19 +42,22 @@
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;" class="checkout-grid">
         <!-- Recent Orders -->
         <div class="card">
-            <div class="card-header">Recent Orders</div>
+            <div class="card-header">
+                <span style="display:flex; align-items:center; gap:0.5rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Recent Orders
+                </span>
+            </div>
             <div class="card-body" style="padding:0;">
                 <table class="table">
                     <thead>
-                        <tr><th>ID</th><th>Status</th><th>Total</th></tr>
+                        <tr><th>Order</th><th>Status</th><th>Total</th></tr>
                     </thead>
                     <tbody>
                         <tr th:each="order : ${recentOrders}">
-                            <td th:text="'#' + ${order.id}">1</td>
-                            <td><span class="badge"
-                                      th:classappend="'badge-' + ${order.status.toLowerCase()}"
-                                      th:text="${order.status}">PENDING</span></td>
-                            <td th:text="'€' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">$0.00</td>
+                            <td style="font-weight:600;" th:text="'#' + ${order['id']}">1</td>
+                            <td><span class="badge" th:classappend="'badge-' + ${order['status'].toLowerCase()}" th:text="${order['status']}">PENDING</span></td>
+                            <td style="font-weight:600;" th:text="'€' + ${#numbers.formatDecimal(order['totalAmount'], 1, 2)}">€0.00</td>
                         </tr>
                     </tbody>
                 </table>
@@ -48,9 +66,15 @@
 
         <!-- Product Management -->
         <div class="card">
-            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>Products</span>
-                <a th:href="@{/admin/products/new}" class="btn btn-sm btn-primary">+ Add Product</a>
+            <div class="card-header">
+                <span style="display:flex; align-items:center; gap:0.5rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    Products
+                </span>
+                <a th:href="@{/admin/products/new}" class="btn btn-sm btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Product
+                </a>
             </div>
             <div class="card-body" style="padding:0; max-height:400px; overflow-y:auto;">
                 <table class="table">
@@ -59,13 +83,15 @@
                     </thead>
                     <tbody>
                         <tr th:each="product : ${products}">
-                            <td th:text="${product.name}">Product</td>
-                            <td th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</td>
-                            <td th:text="${product.stock}">0</td>
+                            <td style="font-weight:500;" th:text="${product['name']}">Product</td>
+                            <td style="font-weight:600; color:var(--primary);" th:text="'€' + ${#numbers.formatDecimal(product['price'], 1, 2)}">€0.00</td>
+                            <td th:text="${product['stock']}">0</td>
                             <td>
-                                <form th:action="@{/admin/products/delete/{id}(id=${product.id})}" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Delete this product?')">Delete</button>
+                                <form th:action="@{/admin/products/delete/{id}(id=${product['id']})}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-ghost" style="color:var(--danger);"
+                                            onclick="return confirm('Delete this product?')" title="Delete">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                    </button>
                                 </form>
                             </td>
                         </tr>

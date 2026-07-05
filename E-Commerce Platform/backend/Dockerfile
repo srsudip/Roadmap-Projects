@@ -25,6 +25,7 @@ RUN mvn clean package -pl ${SERVICE} -am -DskipTests -B
 
 # ── Runtime stage ────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine
+ARG SERVICE
 WORKDIR /app
 COPY --from=build /app/${SERVICE}/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

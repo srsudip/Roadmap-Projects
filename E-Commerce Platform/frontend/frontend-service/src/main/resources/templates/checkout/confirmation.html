@@ -1,45 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <body>
-<div th:fragment="content" class="container">
-    <div style="text-align:center; padding:2rem 0;">
-        <div style="font-size:4rem; margin-bottom:1rem;">&#10004;</div>
-        <h1 style="margin-bottom:0.5rem; color:var(--success);">Order Confirmed!</h1>
-        <p style="color:var(--text-light); font-size:1.1rem;">Thank you for your purchase.</p>
+<div th:fragment="content" class="container-narrow">
+    <div style="text-align:center; padding:2rem 0 1rem;">
+        <div class="confirmation-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h1 style="font-size:1.75rem; font-weight:800; margin-bottom:0.5rem; color:var(--success);">Order Confirmed!</h1>
+        <p style="color:var(--text-secondary); font-size:1rem;">Thank you for your purchase. Your order has been placed successfully.</p>
     </div>
 
-    <div class="card" style="max-width:600px; margin:0 auto;" th:if="${order}">
+    <div class="card" style="margin-top:2rem;" th:if="${order}">
         <div class="card-header">
-            Order #<span th:text="${order.id}">1</span>
+            <span style="display:flex; align-items:center; gap:0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Order #<span th:text="${order['id']}">1</span>
+            </span>
         </div>
         <div class="card-body">
-            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
-                <span style="color:var(--text-light);">Status</span>
-                <span class="badge"
-                      th:classappend="'badge-' + ${order.status.toLowerCase()}"
-                      th:text="${order.status}">PENDING</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
-                <span style="color:var(--text-light);">Total</span>
-                <span style="font-weight:700;" th:text="'€' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">$0.00</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
-                <span style="color:var(--text-light);">Shipping To</span>
-                <span th:text="${order.shippingAddress}">Address</span>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                <div>
+                    <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; margin-bottom:0.25rem;">Status</div>
+                    <span class="badge" th:classappend="'badge-' + ${order['status'].toLowerCase()}" th:text="${order['status']}">PENDING</span>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; margin-bottom:0.25rem;">Total</div>
+                    <span style="font-weight:800; font-size:1.15rem; color:var(--primary);" th:text="'€' + ${#numbers.formatDecimal(order['totalAmount'], 1, 2)}">€0.00</span>
+                </div>
             </div>
 
-            <div th:if="${order.items}" style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
-                <div th:each="item : ${order.items}" style="display:flex; justify-content:space-between; padding:0.4rem 0;">
-                    <span th:text="${item.productName} + ' x' + ${item.quantity}">Product x1</span>
-                    <span th:text="'€' + ${#numbers.formatDecimal(item.price * item.quantity, 1, 2)}">$0.00</span>
+            <div style="margin-bottom:1rem;">
+                <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; margin-bottom:0.25rem;">Shipping To</div>
+                <span style="font-size:0.9rem;" th:text="${order['shippingAddress']}">Address</span>
+            </div>
+
+            <div th:if="${order['items']}" style="border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
+                <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; margin-bottom:0.5rem;">Items</div>
+                <div th:each="item : ${order['items']}" style="display:flex; justify-content:space-between; padding:0.4rem 0; font-size:0.9rem;">
+                    <span><span th:text="${item['productName']}">Product</span> <span style="color:var(--text-muted);" th:text="'x' + ${item['quantity']}">x1</span></span>
+                    <span style="font-weight:600;" th:text="'€' + ${#numbers.formatDecimal(item['price'] * item['quantity'], 1, 2)}">€0.00</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div style="text-align:center; margin-top:2rem;">
-        <a th:href="@{/orders}" class="btn btn-primary">View My Orders</a>
-        <a th:href="@{/products}" class="btn btn-outline" style="margin-left:0.5rem;">Continue Shopping</a>
+    <div style="display:flex; gap:1rem; margin-top:2rem; justify-content:center;">
+        <a th:href="@{/orders}" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            View My Orders
+        </a>
+        <a th:href="@{/products}" class="btn btn-outline">Continue Shopping</a>
     </div>
 </div>
 </body>

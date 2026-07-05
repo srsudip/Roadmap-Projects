@@ -2,11 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <body>
 <div th:fragment="content" class="container">
-    <h1 style="margin-bottom:1.5rem;">Products</h1>
+    <!-- Hero Section -->
+    <div th:if="${search == null and selectedCategory == null}" style="background:linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius:var(--radius-lg); padding:3rem; margin-bottom:2rem; color:white;">
+        <h1 style="font-size:2rem; font-weight:800; margin-bottom:0.5rem; letter-spacing:-0.02em;">Discover Premium Products</h1>
+        <p style="opacity:0.85; font-size:1.05rem; max-width:500px;">Browse our curated collection of top-quality products at competitive prices.</p>
+    </div>
 
     <!-- Search -->
     <form class="search-bar" th:action="@{/products}" method="get">
-        <input type="text" name="search" class="form-control" placeholder="Search products..." th:value="${search}">
+        <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="search" class="form-control" placeholder="Search products..." th:value="${search}">
+        </div>
         <button type="submit" class="btn btn-primary">Search</button>
         <a th:if="${search}" th:href="@{/products}" class="btn btn-secondary">Clear</a>
     </form>
@@ -23,23 +30,32 @@
     <!-- Products grid -->
     <div class="product-grid" th:if="${products != null and !products.isEmpty()}">
         <div class="product-card" th:each="product : ${products}">
-            <div style="background:#f1f5f9; height:200px; display:flex; align-items:center; justify-content:center;">
-                <img th:if="${product.imageUrl != null}" th:src="${product.imageUrl}" alt="Product">
-                <span th:unless="${product.imageUrl != null}" style="font-size:3rem; color:#94a3b8;">&#128722;</span>
-            </div>
+            <a th:href="@{/products/{id}(id=${product.id})}" style="text-decoration:none; color:inherit;">
+                <div class="img-wrap">
+                    <img th:if="${product['imageUrl'] != null}" th:src="${product['imageUrl']}" th:alt="${product['name']}" loading="lazy">
+                    <div th:unless="${product['imageUrl'] != null}" class="img-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    </div>
+                    <span class="stock-badge" th:classappend="${product['stock'] > 0} ? 'in-stock' : 'out-of-stock'"
+                          th:text="${product['stock'] > 0} ? 'In Stock' : 'Sold Out'">In Stock</span>
+                </div>
+            </a>
             <div class="info">
-                <a th:href="@{/products/{id}(id=${product.id})}" class="name" th:text="${product.name}">Product</a>
-                <div class="category" th:text="'Category #' + ${product.categoryId}">Category</div>
-                <div class="price" th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</div>
-                <div th:classappend="${product.stock > 0} ? 'stock' : 'stock out'"
-                     th:text="${product.stock > 0} ? ${product.stock} + ' in stock' : 'Out of stock'">In stock</div>
+                <a th:href="@{/products/{id}(id=${product.id})}" class="name" th:text="${product['name']}">Product Name</a>
+                <div class="category" th:text="'Category #' + ${product['categoryId']}">Category</div>
+                <div class="price" th:text="'€' + ${#numbers.formatDecimal(product['price'], 1, 2)}">€0.00</div>
+                <div class="stock-info" th:classappend="${product['stock'] > 0} ? 'in' : 'out'"
+                     th:text="${product['stock'] > 0} ? ${product['stock']} + ' units available' : 'Currently unavailable'">In stock</div>
             </div>
         </div>
     </div>
 
-    <div th:unless="${products != null and !products.isEmpty()}" style="text-align:center; padding:3rem; color:var(--text-light);">
-        <p style="font-size:1.2rem;">No products found</p>
-        <a th:href="@{/products}" class="btn btn-outline" style="margin-top:1rem;">Browse all products</a>
+    <!-- Empty state -->
+    <div th:unless="${products != null and !products.isEmpty()}" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>No products found</h3>
+        <p>Try adjusting your search or browse all products.</p>
+        <a th:href="@{/products}" class="btn btn-primary">Browse All Products</a>
     </div>
 </div>
 </body>
