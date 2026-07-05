@@ -15,15 +15,19 @@ A collection of backend development projects completed as part of the **[roadmap
 | 3 | **Expense Tracker** | A CLI + JavaFX GUI app to manage finances — add, delete, view expenses and summaries | [roadmap.sh/projects/expense-tracker](https://roadmap.sh/projects/expense-tracker) |
 | 4 | **Number Guessing Game** | A CLI game with difficulty levels, hints, timer, and high score tracking | [roadmap.sh/projects/number-guessing-game](https://roadmap.sh/projects/number-guessing-game) |
 | 5 | **Movie Reservation System** | A JavaFX GUI app with auth, seat reservation, showtimes, and admin reporting | [roadmap.sh/projects/movie-reservation-system](https://roadmap.sh/projects/movie-reservation-system) |
+| 6 | **Scalable E-Commerce Platform** | A microservices-based e-commerce platform with Docker, Spring Cloud, and RabbitMQ | [roadmap.sh/projects/ecommerce-platform](https://roadmap.sh/projects/ecommerce-platform) |
 
 ---
 
 ## Technologies Used
 - **Language:** Java 21
 - **GUI:** JavaFX
-- **Database:** SQLite
-- **Approach:** CLI tools and GUI apps with clean architecture and data persistence
-- **Focus:** CLI tools, API integration, data persistence, and clean code architecture
+- **Backend:** Spring Boot, Spring Cloud, Microservices
+- **Database:** SQLite, PostgreSQL, H2
+- **Messaging:** RabbitMQ
+- **Infrastructure:** Docker, Docker Compose, GitHub Actions
+- **Approach:** CLI tools, GUI apps, and microservices architectures
+- **Focus:** CLI tools, API integration, data persistence, microservices, and clean code architecture
 
 ---
 

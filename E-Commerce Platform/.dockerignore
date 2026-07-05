@@ -1,0 +1,9 @@
+**/target/
+**/.git
+**/.idea
+**/.vscode
+**/*.md
+**/node_modules
+**/.settings
+**/.classpath
+**/.project
