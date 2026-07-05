@@ -113,7 +113,8 @@ services:
   # ── Backend Microservices ───────────────────────────
   eureka-server:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: eureka-server
     ports:
@@ -126,7 +127,8 @@ services:
 
   user-service:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: user-service
     ports:
@@ -150,7 +152,8 @@ services:
 
   product-service:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: product-service
     ports:
@@ -174,7 +177,8 @@ services:
 
   cart-service:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: cart-service
     ports:
@@ -198,7 +202,8 @@ services:
 
   order-service:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: order-service
     ports:
@@ -222,7 +227,8 @@ services:
 
   payment-service:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: payment-service
     ports:
@@ -246,7 +252,8 @@ services:
 
   notification-service:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: notification-service
     ports:
@@ -276,7 +283,8 @@ services:
 
   api-gateway:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       args:
         SERVICE: api-gateway
     ports:
@@ -295,7 +303,10 @@ services:
   # ── Frontend ───────────────────────────────────────
   frontend:
     build:
-      context: ./frontend/frontend-service
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: frontend
     ports:
       - "3000:3000"
     environment:
