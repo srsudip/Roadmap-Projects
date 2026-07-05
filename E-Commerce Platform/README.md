@@ -5,48 +5,53 @@ A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, 
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                        API Gateway (:8080)                        │
-│                   Spring Cloud Gateway + CORS                     │
-└──────────┬──────────┬──────────┬──────────┬──────────┬──────────┘
-           │          │          │          │          │
-     ┌─────▼──┐ ┌─────▼──┐ ┌────▼───┐ ┌───▼────┐ ┌──▼─────────┐
-     │  User  │ │Product │ │  Cart  │ │ Order  │ │  Payment   │
-     │Service │ │Service │ │Service │ │Service │ │  Service   │
-     │ :8081  │ │ :8082  │ │ :8083  │ │ :8084  │ │   :8085    │
-     └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └─────┬──────┘
-         │          │          │          │             │
-    ┌────▼───┐ ┌───▼────┐ ┌──▼─────┐ ┌──▼─────┐ ┌────▼─────┐
-    │Postgres│ │Postgres│ │Postgres│ │Postgres│ │ Postgres  │
-    │ users  │ │products│ │ carts  │ │ orders │ │ payments  │
-    │ :5433  │ │ :5434  │ │ :5435  │ │ :5436  │ │  :5437    │
-    └────────┘ └────────┘ └────────┘ └────────┘ └──────────┘
+                         ┌──────────────────┐
+                         │  Frontend (:3000) │
+                         │  Thymeleaf + CSS  │
+                         └────────┬─────────┘
+                                  │
+                    ┌─────────────▼──────────────┐
+                    │    API Gateway (:8080)       │
+                    │  Spring Cloud Gateway + CORS │
+                    └─────┬──────┬──────┬────┬────┘
+                          │      │      │    │
+                    ┌─────▼──┐ ┌▼────┐ ┌▼───▼──┐
+                    │  User  │ │Cart │ │Order  │
+                    │Service │ │Svc  │ │Service│
+                    │ :8081  │ │:8083│ │ :8084 │
+                    └───┬────┘ └──┬──┘ └───┬───┘
+                   ┌────▼───┐ ┌──▼────┐ ┌──▼─────┐
+                   │Postgres│ │Postgres│ │Postgres│
+                   │ users  │ │ carts  │ │ orders │
+                   │ :5433  │ │ :5435  │ │ :5436  │
+                   └────────┘ └────────┘ └────────┘
 
-              ┌─────────────────┐     ┌──────────────┐
-              │  Notification   │◄────┤   RabbitMQ   │
-              │   Service       │     │  :5672/:15672│
-              │    :8086        │     └──────────────┘
-              └────────┬────────┘
-                  ┌────▼─────┐
-                  │ Postgres  │
-                  │notifications│
-                  │   :5438   │
-                  └──────────┘
+              ┌───────────┐  ┌───────────┐  ┌──────────┐
+              │  Product  │  │  Payment  │  │  Notif.  │
+              │  Service  │  │  Service  │  │  Service │
+              │  :8082    │  │  :8085    │  │  :8086   │
+              └─────┬─────┘  └─────┬─────┘  └────┬─────┘
+              ┌─────▼─────┐  ┌────▼──────┐  ┌───▼──────┐
+              │ Postgres   │  │ Postgres  │  │ Postgres  │
+              │ products   │  │ payments  │  │notif.     │
+              │ :5434      │  │ :5437     │  │ :5438    │
+              └────────────┘  └───────────┘  └──────────┘
 
-              ┌─────────────────┐
-              │  Eureka Server  │  (Service Discovery)
-              │     :8761       │
-              └─────────────────┘
+         ┌──────────────┐     ┌─────────────────┐
+         │   RabbitMQ   │────►│  Eureka Server   │
+         │ :5672/:15672 │     │     :8761        │
+         └──────────────┘     └─────────────────┘
 ```
 
 ## Services
 
 | Service | Port | Database | Description |
 |---------|------|----------|-------------|
+| **Frontend** | 3000 | — | Thymeleaf web UI (browse, cart, checkout, orders, admin) |
 | **Eureka Server** | 8761 | — | Service discovery & registration |
 | **API Gateway** | 8080 | — | Routing, CORS, load balancing |
 | **User Service** | 8081 | users | Authentication, JWT, user profiles |
-| **Product Service** | 8082 | products | Product catalog, categories, search |
+| **Product Service** | 8082 | products | Product catalog (30 products, 5 categories) |
 | **Cart Service** | 8083 | carts | Shopping cart management |
 | **Order Service** | 8084 | orders | Order processing & tracking |
 | **Payment Service** | 8085 | payments | Payment processing & refunds |
@@ -56,6 +61,7 @@ A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, 
 
 - **Java 21** + **Spring Boot 3.2.5**
 - **Spring Cloud 2023.0.1** (Eureka, Gateway, Feign)
+- **Thymeleaf** + **Spring Security** (frontend UI)
 - **PostgreSQL 16** (one per service)
 - **RabbitMQ 3** (async notification events)
 - **JWT** (jjwt 0.12.5) for authentication
@@ -81,6 +87,8 @@ All services start in ~60 seconds. Check health:
 ```bash
 docker compose ps
 ```
+
+Open the web UI at **http://localhost:3000**.
 
 ## API Endpoints
 
@@ -191,10 +199,21 @@ E-Commerce Platform/
 ├── docker-compose.yml               # Full stack orchestration
 ├── eureka-server/                   # Service discovery
 ├── api-gateway/                     # API routing
+├── frontend-service/                # Thymeleaf web UI (port 3000)
 ├── user-service/                    # Auth & user management
-├── product-service/                 # Product catalog
+├── product-service/                 # Product catalog (30 products)
 ├── cart-service/                    # Shopping cart
 ├── order-service/                   # Order processing
 ├── payment-service/                 # Payment handling
 └── notification-service/            # Async notifications
 ```
+
+## Frontend Web UI
+
+The platform includes a full-featured web interface built with Spring Boot + Thymeleaf:
+
+- **Browse Products** — Search, filter by category, view details
+- **Shopping Cart** — Add/remove items, adjust quantities
+- **Checkout** — Shipping address, payment method selection
+- **My Orders** — View order history, cancel pending orders
+- **Admin Dashboard** — Stats, manage products (add/delete), view all orders/users
