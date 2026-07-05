@@ -15,7 +15,7 @@ A collection of backend development projects completed as part of the **[roadmap
 | 3 | **Expense Tracker** | A CLI + JavaFX GUI app to manage finances — add, delete, view expenses and summaries | [roadmap.sh/projects/expense-tracker](https://roadmap.sh/projects/expense-tracker) |
 | 4 | **Number Guessing Game** | A CLI game with difficulty levels, hints, timer, and high score tracking | [roadmap.sh/projects/number-guessing-game](https://roadmap.sh/projects/number-guessing-game) |
 | 5 | **Movie Reservation System** | A JavaFX GUI app with auth, seat reservation, showtimes, and admin reporting | [roadmap.sh/projects/movie-reservation-system](https://roadmap.sh/projects/movie-reservation-system) |
-| 6 | **Scalable E-Commerce Platform** | A microservices-based e-commerce platform with Docker, Spring Cloud, Thymeleaf frontend, and RabbitMQ | [roadmap.sh/projects/ecommerce-platform](https://roadmap.sh/projects/ecommerce-platform) |
+| 6 | **Scalable E-Commerce Platform** | A microservices-based e-commerce platform with Docker, Spring Cloud, Thymeleaf frontend, and RabbitMQ | [roadmap.sh/projects/scalable-ecommerce-platform](https://roadmap.sh/projects/scalable-ecommerce-platform) |
 
 ---
 

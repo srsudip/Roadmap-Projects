@@ -1,6 +1,6 @@
 # Scalable E-Commerce Platform
 
-A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, and Docker — following the [roadmap.sh Scalable E-Commerce Platform](https://roadmap.sh/projects/ecommerce-platform) project specification.
+A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, and Docker — following the [roadmap.sh Scalable E-Commerce Platform](https://roadmap.sh/projects/scalable-ecommerce-platform) project specification.
 
 ## Architecture
 
@@ -84,12 +84,12 @@ E-Commerce Platform/
 
 - **Java 21** + **Spring Boot 3.2.5**
 - **Spring Cloud 2023.0.1** (Eureka, Gateway, Feign)
-- **Thymeleaf** + **Spring Security** (frontend UI)
-- **PostgreSQL 16** (one per service)
+- **Thymeleaf** (server-rendered frontend)
+- **PostgreSQL 16** (one database per service)
 - **RabbitMQ 3** (async notification events)
 - **JWT** (jjwt 0.12.5) for authentication
-- **BCrypt** for password hashing
-- **Docker Compose** for orchestration
+- **Docker Compose** for orchestration (16 containers)
+- **Unsplash** for real product photography
 
 ## Prerequisites
 
@@ -106,12 +106,21 @@ cd "Roadmap-Projects/E-Commerce Platform"
 docker compose up -d --build
 ```
 
-All services start in ~60 seconds. Check health:
+All 16 containers start in ~60 seconds. Check health:
 ```bash
 docker compose ps
 ```
 
 Open the web UI at **http://localhost:3000**.
+
+### Useful URLs
+
+| URL | Description |
+|-----|-------------|
+| http://localhost:3000 | ShopHub Web UI |
+| http://localhost:8761 | Eureka Dashboard |
+| http://localhost:15672 | RabbitMQ Management (guest/guest) |
+| http://localhost:8080 | API Gateway (direct API access) |
 
 ### Default Admin Credentials
 
