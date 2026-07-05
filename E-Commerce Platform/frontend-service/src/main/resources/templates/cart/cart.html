@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<body>
+<div th:fragment="content" class="container">
+    <h1 style="margin-bottom:1.5rem;">Shopping Cart</h1>
+
+    <div th:if="${cart == null or cart.items == null or cart.items.isEmpty()}" style="text-align:center; padding:3rem; color:var(--text-light);">
+        <p style="font-size:1.2rem;">Your cart is empty</p>
+        <a th:href="@{/products}" class="btn btn-primary" style="margin-top:1rem;">Browse Products</a>
+    </div>
+
+    <div th:unless="${cart == null or cart.items == null or cart.items.isEmpty()}">
+        <div class="card">
+            <div class="card-body">
+                <div th:each="item : ${cart.items}" class="cart-item">
+                    <div class="info">
+                        <div class="name" th:text="${item.productName}">Product</div>
+                        <div class="price" th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 2)}">$0.00</div>
+                    </div>
+                    <div class="qty-controls">
+                        <form th:action="@{/cart/update/{productId}(productId=${item.productId})}" method="post" style="display:flex; align-items:center; gap:0.5rem;">
+                            <input type="hidden" name="quantity" th:value="${item.quantity - 1}">
+                            <button type="submit" class="btn btn-sm btn-secondary">-</button>
+                        </form>
+                        <span style="min-width:30px; text-align:center; font-weight:600;" th:text="${item.quantity}">1</span>
+                        <form th:action="@{/cart/update/{productId}(productId=${item.productId})}" method="post" style="display:flex; align-items:center; gap:0.5rem;">
+                            <input type="hidden" name="quantity" th:value="${item.quantity + 1}">
+                            <button type="submit" class="btn btn-sm btn-secondary">+</button>
+                        </form>
+                        <form th:action="@{/cart/remove/{productId}(productId=${item.productId})}" method="post" style="margin-left:0.5rem;">
+                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart-total">
+            <span>Total: </span>
+            <span th:text="'$' + ${#numbers.formatDecimal(cart.total, 1, 2)}">$0.00</span>
+        </div>
+
+        <div style="display:flex; gap:1rem; margin-top:1rem;">
+            <a th:href="@{/products}" class="btn btn-outline">Continue Shopping</a>
+            <a th:href="@{/checkout}" class="btn btn-primary btn-lg" style="flex:1;">Proceed to Checkout</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

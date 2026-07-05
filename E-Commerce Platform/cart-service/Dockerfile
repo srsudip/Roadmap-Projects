@@ -9,6 +9,7 @@ COPY cart-service/pom.xml cart-service/
 COPY order-service/pom.xml order-service/
 COPY payment-service/pom.xml payment-service/
 COPY notification-service/pom.xml notification-service/
+COPY frontend-service/pom.xml frontend-service/
 RUN mvn dependency:go-offline -pl cart-service -am -B || true
 COPY cart-service/src cart-service/src
 RUN mvn clean package -pl cart-service -am -DskipTests -B

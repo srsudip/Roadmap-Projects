@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<body>
+<div th:fragment="content" class="auth-container">
+    <div class="auth-card">
+        <h2>Login to ShopHub</h2>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Login</button>
+        </form>
+
+        <div class="text-center">
+            Don't have an account? <a th:href="@{/signup}">Sign up</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

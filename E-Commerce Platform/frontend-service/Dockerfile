@@ -10,12 +10,12 @@ COPY order-service/pom.xml order-service/
 COPY payment-service/pom.xml payment-service/
 COPY notification-service/pom.xml notification-service/
 COPY frontend-service/pom.xml frontend-service/
-RUN mvn dependency:go-offline -pl notification-service -am -B || true
-COPY notification-service/src notification-service/src
-RUN mvn clean package -pl notification-service -am -DskipTests -B
+RUN mvn dependency:go-offline -pl frontend-service -am -B || true
+COPY frontend-service/src frontend-service/src
+RUN mvn clean package -pl frontend-service -am -DskipTests -B
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/notification-service/target/*.jar app.jar
-EXPOSE 8086
+COPY --from=build /app/frontend-service/target/*.jar app.jar
+EXPOSE 3000
 ENTRYPOINT ["java", "-jar", "app.jar"]

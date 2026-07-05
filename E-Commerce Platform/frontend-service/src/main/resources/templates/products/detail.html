@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<body>
+<div th:fragment="content" class="container">
+    <a th:href="@{/products}" style="color:var(--primary); text-decoration:none; font-size:0.9rem;">&larr; Back to products</a>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:1.5rem;" class="checkout-grid">
+        <div>
+            <div style="background:#f1f5f9; border-radius:var(--radius); height:400px; display:flex; align-items:center; justify-content:center;">
+                <img th:if="${product.imageUrl != null}" th:src="${product.imageUrl}" alt="Product"
+                     style="max-height:100%; max-width:100%; object-fit:contain;">
+                <span th:unless="${product.imageUrl != null}" style="font-size:5rem; color:#94a3b8;">&#128722;</span>
+            </div>
+        </div>
+        <div>
+            <h1 th:text="${product.name}" style="margin-bottom:0.5rem;">Product Name</h1>
+            <p th:text="'Category #' + ${product.categoryId}" style="color:var(--text-light); margin-bottom:1rem;">Category</p>
+            <p th:text="${product.description}" style="margin-bottom:1.5rem; line-height:1.7;" th:if="${product.description}">Description</p>
+            <div style="font-size:2rem; font-weight:700; color:var(--primary); margin-bottom:1rem;"
+                 th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</div>
+            <div th:classappend="${product.stock > 0} ? 'stock' : 'stock out'"
+                 th:text="${product.stock > 0} ? ${product.stock} + ' in stock' : 'Out of stock'"
+                 style="margin-bottom:1.5rem; font-size:0.95rem;"></div>
+
+            <form th:action="@{/products/add-to-cart/{id}(id=${product.id})}" method="post"
+                  th:if="${product.stock > 0}">
+                <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+                    <label style="font-weight:500;">Qty:</label>
+                    <input type="number" name="quantity" value="1" min="1" th:max="${product.stock}"
+                           class="form-control" style="width:80px;">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Add to Cart</button>
+            </form>
+
+            <div th:unless="${product.stock > 0}" style="color:var(--danger); font-weight:500;">
+                This product is currently out of stock.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

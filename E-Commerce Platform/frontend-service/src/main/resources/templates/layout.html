@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' | ShopHub' : 'ShopHub'}">ShopHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a th:href="@{/products}" class="navbar-brand">ShopHub</a>
+        <ul class="navbar-nav">
+            <li><a th:href="@{/products}">Products</a></li>
+            <li th:if="${loggedIn}"><a th:href="@{/orders}">My Orders</a></li>
+            <li th:if="${isAdmin}"><a th:href="@{/admin}">Admin</a></li>
+            <li th:if="${loggedIn}"><a th:href="@{/cart}">Cart</a></li>
+            <li th:if="${!loggedIn}"><a th:href="@{/login}" class="btn-nav">Login</a></li>
+            <li th:if="${loggedIn}">
+                <span style="color:#93c5fd; font-size:0.85rem;" th:text="'Hi, ' + ${username}"></span>
+            </li>
+            <li th:if="${loggedIn}">
+                <form th:action="@{/logout}" method="post" style="display:inline">
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Flash messages -->
+    <div class="container" th:if="${success}">
+        <div class="alert alert-success" th:text="${success}"></div>
+    </div>
+    <div class="container" th:if="${error}">
+        <div class="alert alert-error" th:text="${error}"></div>
+    </div>
+
+    <!-- Content -->
+    <div th:replace="~{:: content}"></div>
+</body>
+</html>

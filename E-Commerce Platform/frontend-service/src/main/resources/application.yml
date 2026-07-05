@@ -1,0 +1,22 @@
+server:
+  port: 3000
+
+spring:
+  application:
+    name: frontend-service
+  thymeleaf:
+    cache: false
+  security:
+    user:
+      name: user
+      password: user
+
+api:
+  gateway:
+    url: http://api-gateway:8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

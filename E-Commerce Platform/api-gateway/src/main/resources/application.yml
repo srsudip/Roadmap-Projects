@@ -11,38 +11,26 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/api/users/**
-          filters:
-            - StripPrefix=1
         - id: product-service
           uri: lb://product-service
           predicates:
             - Path=/api/products/**
-          filters:
-            - StripPrefix=1
         - id: cart-service
           uri: lb://cart-service
           predicates:
             - Path=/api/cart/**
-          filters:
-            - StripPrefix=1
         - id: order-service
           uri: lb://order-service
           predicates:
             - Path=/api/orders/**
-          filters:
-            - StripPrefix=1
         - id: payment-service
           uri: lb://payment-service
           predicates:
             - Path=/api/payments/**
-          filters:
-            - StripPrefix=1
         - id: notification-service
           uri: lb://notification-service
           predicates:
             - Path=/api/notifications/**
-          filters:
-            - StripPrefix=1
 
 eureka:
   client:

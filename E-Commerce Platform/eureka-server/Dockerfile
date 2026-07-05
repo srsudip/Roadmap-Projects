@@ -9,6 +9,7 @@ COPY cart-service/pom.xml cart-service/
 COPY order-service/pom.xml order-service/
 COPY payment-service/pom.xml payment-service/
 COPY notification-service/pom.xml notification-service/
+COPY frontend-service/pom.xml frontend-service/
 RUN mvn dependency:go-offline -pl eureka-server -am -B || true
 COPY eureka-server/src eureka-server/src
 RUN mvn clean package -pl eureka-server -am -DskipTests -B
