@@ -1,4 +1,6 @@
 target/
 *.class
-*.jar
 *.db
+*.mv.db
+*.trace.db
+movie_reservation.*
