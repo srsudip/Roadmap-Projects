@@ -1,2 +1,6 @@
 *.class
+*.jar
+target/
 .omo/
+.DS_Store
+thoughts/

@@ -47,10 +47,10 @@ A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, 
 
 ```
 E-Commerce Platform/
-├── docker-compose.yml            # Full stack orchestration
+├── Dockerfile                    # Unified multi-stage build (ARG SERVICE=)
+├── docker-compose.yml            # Full stack orchestration (16 containers)
 ├── backend/
 │   ├── pom.xml                   # Multi-module parent POM (8 services)
-│   ├── Dockerfile                # Parameterized (ARG SERVICE=)
 │   ├── eureka-server/            # Service discovery
 │   ├── api-gateway/              # API routing
 │   ├── user-service/             # Auth & user management
@@ -62,7 +62,6 @@ E-Commerce Platform/
 └── frontend/
     └── frontend-service/
         ├── pom.xml               # Standalone Spring Boot
-        ├── Dockerfile
         └── src/                  # Thymeleaf web UI
 ```
 
