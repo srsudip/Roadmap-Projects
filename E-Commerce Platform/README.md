@@ -47,22 +47,33 @@ A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, 
 
 ```
 E-Commerce Platform/
-├── Dockerfile                    # Unified multi-stage build (ARG SERVICE=)
-├── docker-compose.yml            # Full stack orchestration (16 containers)
+├── Dockerfile                        # Multi-stage build (build → development → production)
+├── docker-compose.yml                # Development: hot-reload, volume mounts
+├── docker-compose-prod.yml           # Production: pre-built images, no build context
+├── .env.development                  # Dev environment variables
+├── .env.production                   # Prod environment variables (registry, tags)
+├── .github/workflows/ci.yml         # GitHub Actions CI/CD pipeline
+├── database/                         # PostgreSQL init scripts
+│   ├── init-userdb.sql
+│   ├── init-productdb.sql
+│   ├── init-cartdb.sql
+│   ├── init-orderdb.sql
+│   ├── init-paymentdb.sql
+│   └── init-notificationdb.sql
 ├── backend/
-│   ├── pom.xml                   # Multi-module parent POM (8 services)
-│   ├── eureka-server/            # Service discovery
-│   ├── api-gateway/              # API routing
-│   ├── user-service/             # Auth & user management
-│   ├── product-service/          # Product catalog (30 products)
-│   ├── cart-service/             # Shopping cart
-│   ├── order-service/            # Order processing
-│   ├── payment-service/          # Payment handling
-│   └── notification-service/     # Async notifications
+│   ├── pom.xml                       # Multi-module parent POM (8 services)
+│   ├── eureka-server/                # Service discovery
+│   ├── api-gateway/                  # API routing
+│   ├── user-service/                 # Auth & user management
+│   ├── product-service/              # Product catalog (30 products)
+│   ├── cart-service/                 # Shopping cart
+│   ├── order-service/                # Order processing
+│   ├── payment-service/              # Payment handling
+│   └── notification-service/         # Async notifications
 └── frontend/
     └── frontend-service/
-        ├── pom.xml               # Standalone Spring Boot
-        └── src/                  # Thymeleaf web UI
+        ├── pom.xml                   # Standalone Spring Boot
+        └── src/                      # Thymeleaf web UI
 ```
 
 ## Services
@@ -87,8 +98,48 @@ E-Commerce Platform/
 - **PostgreSQL 16** (one database per service)
 - **RabbitMQ 3** (async notification events)
 - **JWT** (jjwt 0.12.5) for authentication
-- **Docker Compose** for orchestration (16 containers)
+- **Docker** multi-stage builds (development + production targets)
+- **Docker Compose** orchestration (dev + prod configurations)
+- **GitHub Actions** CI/CD pipeline
 - **Unsplash** for real product photography
+
+## Docker Setup
+
+### Development (hot-reload)
+
+```bash
+docker compose up -d --build
+```
+
+- Volume mounts enable hot-reload for backend and frontend source code
+- Builds using the `development` Dockerfile target
+- All 16 containers start in ~60 seconds
+
+### Production
+
+```bash
+# Build and tag images
+docker compose -f docker-compose-prod.yml build
+
+# Or pull from registry
+docker compose -f docker-compose-prod.yml pull
+
+# Start
+docker compose -f docker-compose-prod.yml up -d
+```
+
+- Uses pre-built images from container registry (GHCR)
+- No volume mounts, no build context
+- Non-root user in production containers
+- Same health checks and dependency chains as dev
+
+### Dockerfile Stages
+
+| Stage | Purpose | Base Image |
+|-------|---------|------------|
+| `build` | Compile JAR with Maven | `maven:3.9-eclipse-temurin-21` |
+| `development` | Hot-reload runtime | `eclipse-temurin:21-jre-alpine` |
+| `production` | Minimal secure runtime | `eclipse-temurin:21-jre-alpine` + non-root user |
 
 ## Prerequisites
 
@@ -137,6 +188,15 @@ The platform includes a full-featured web interface built with Spring Boot + Thy
 - **Admin Dashboard** — Stats, manage products, view all orders/users
 
 All prices are displayed in **euros (€)**.
+
+## CI/CD Pipeline
+
+GitHub Actions workflow (`.github/workflows/ci.yml`):
+
+1. **Test** — Runs `mvn test` for backend and frontend in parallel
+2. **Build** — Builds Docker images with `--target production` for all 9 services
+3. **Push** — Pushes tagged images to GitHub Container Registry (GHCR)
+4. **Deploy** — SSH into production server, pull images, restart containers
 
 ## API Endpoints
 
@@ -212,7 +272,7 @@ curl -X PUT http://localhost:8080/api/payments/1/refund
 
 ### Product Service
 - 30 products across 5 categories (Electronics, Clothing, Books, Home & Garden, Sports)
-- Product images included
+- Product images from Unsplash
 - Search by name, filter by category
 - Stock management
 
@@ -237,5 +297,16 @@ curl -X PUT http://localhost:8080/api/payments/1/refund
 ## Stopping
 
 ```bash
+# Development
 docker compose down
+
+# Production
+docker compose -f docker-compose-prod.yml down
+```
+
+## Cleanup
+
+```bash
+# Remove all containers, images, and volumes
+docker compose down --rmi all --volumes --remove-orphans
 ```

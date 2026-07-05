@@ -116,14 +116,9 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Backend Microservices (Development) ─────────────
+  # ── Backend Microservices (Production) ──────────────
   eureka-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: eureka-server
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/eureka-server:${TAG:-latest}
     ports:
       - "8761:8761"
     healthcheck:
@@ -133,12 +128,7 @@ services:
       retries: 5
 
   user-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: user-service
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/user-service:${TAG:-latest}
     ports:
       - "8081:8081"
     environment:
@@ -147,8 +137,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/user-service/src:/app/backend/user-service/src
     depends_on:
       postgres-users:
         condition: service_healthy
@@ -161,12 +149,7 @@ services:
       retries: 5
 
   product-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: product-service
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/product-service:${TAG:-latest}
     ports:
       - "8082:8082"
     environment:
@@ -175,8 +158,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/product-service/src:/app/backend/product-service/src
     depends_on:
       postgres-products:
         condition: service_healthy
@@ -189,12 +170,7 @@ services:
       retries: 5
 
   cart-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: cart-service
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/cart-service:${TAG:-latest}
     ports:
       - "8083:8083"
     environment:
@@ -203,8 +179,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/cart-service/src:/app/backend/cart-service/src
     depends_on:
       postgres-carts:
         condition: service_healthy
@@ -217,12 +191,7 @@ services:
       retries: 5
 
   order-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: order-service
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/order-service:${TAG:-latest}
     ports:
       - "8084:8084"
     environment:
@@ -231,8 +200,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/order-service/src:/app/backend/order-service/src
     depends_on:
       postgres-orders:
         condition: service_healthy
@@ -245,12 +212,7 @@ services:
       retries: 5
 
   payment-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: payment-service
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/payment-service:${TAG:-latest}
     ports:
       - "8085:8085"
     environment:
@@ -259,8 +221,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/payment-service/src:/app/backend/payment-service/src
     depends_on:
       postgres-payments:
         condition: service_healthy
@@ -273,12 +233,7 @@ services:
       retries: 5
 
   notification-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: notification-service
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/notification-service:${TAG:-latest}
     ports:
       - "8086:8086"
     environment:
@@ -291,8 +246,6 @@ services:
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-    volumes:
-      - ./backend/notification-service/src:/app/backend/notification-service/src
     depends_on:
       postgres-notifications:
         condition: service_healthy
@@ -307,12 +260,7 @@ services:
       retries: 5
 
   api-gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: api-gateway
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/api-gateway:${TAG:-latest}
     ports:
       - "8080:8080"
     environment:
@@ -326,21 +274,14 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Frontend (Development) ──────────────────────────
+  # ── Frontend (Production) ───────────────────────────
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-      args:
-        SERVICE: frontend
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-ecommerce-platform}/frontend:${TAG:-latest}
     ports:
       - "3000:3000"
     environment:
       API_GATEWAY_URL: http://api-gateway:8080
       API_GATEWAY_HOST: api-gateway
-    volumes:
-      - ./frontend/frontend-service/src:/app/frontend/frontend-service/src
     depends_on:
       api-gateway:
         condition: service_healthy

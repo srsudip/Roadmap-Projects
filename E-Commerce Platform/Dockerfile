@@ -2,10 +2,11 @@ ARG SERVICE=eureka-server
 
 # ═══════════════════════════════════════════════════════
 # Unified Dockerfile — builds any frontend or backend service
-# Usage: docker build --build-arg SERVICE=<name> .
+# Usage: docker build --target development --build-arg SERVICE=<name> .
+#        docker build --target production  --build-arg SERVICE=<name> .
 # ═══════════════════════════════════════════════════════
 
-# ── Build stage ──────────────────────────────────────
+# ── Build stage (shared) ─────────────────────────────
 FROM maven:3.9-eclipse-temurin-21 AS build
 ARG SERVICE
 WORKDIR /app
@@ -29,24 +30,33 @@ COPY frontend/frontend-service/ frontend/frontend-service/
 
 RUN if [ "$SERVICE" = "frontend" ]; then \
       cd frontend/frontend-service && mvn clean package -DskipTests -B; \
+      cp target/*.jar /app/app.jar; \
     else \
       cd backend && mvn clean package -pl ${SERVICE} -am -DskipTests -B; \
+      cp ${SERVICE}/target/*.jar /app/app.jar; \
     fi
 
-# ── Runtime stage ────────────────────────────────────
-FROM eclipse-temurin:21-jre-alpine
+# ── Development target ───────────────────────────────
+FROM eclipse-temurin:21-jre-alpine AS development
 ARG SERVICE
 WORKDIR /app
 
-RUN mkdir -p /build/backend /build/frontend
-COPY --from=build /app/backend/ /build/backend/
-COPY --from=build /app/frontend/ /build/frontend/
+COPY --from=build /app/app.jar app.jar
 
-RUN if [ "$SERVICE" = "frontend" ]; then \
-      cp /build/frontend/frontend-service/target/*.jar /app/app.jar; \
-    else \
-      cp /build/backend/${SERVICE}/target/*.jar /app/app.jar; \
-    fi
+EXPOSE 3000 8080 8081 8082 8083 8084 8085 8086 8761
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# ── Production target ────────────────────────────────
+FROM eclipse-temurin:21-jre-alpine AS production
+ARG SERVICE
+WORKDIR /app
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=build /app/app.jar app.jar
+
+RUN chown appuser:appgroup app.jar
+USER appuser
 
 EXPOSE 3000 8080 8081 8082 8083 8084 8085 8086 8761
 ENTRYPOINT ["java", "-jar", "app.jar"]
