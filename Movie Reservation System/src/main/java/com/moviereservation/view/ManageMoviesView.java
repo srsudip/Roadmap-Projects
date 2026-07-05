@@ -36,7 +36,7 @@ public class ManageMoviesView {
         descArea.setPromptText("Description");
         descArea.setPrefRowCount(2);
         ComboBox<String> genreBox = new ComboBox<>();
-        genreBox.getItems().addAll("Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Romance", "Crime", "Thriller");
+        genreBox.getItems().addAll("Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Romance", "Crime", "Thriller", "Animation");
         genreBox.setValue("Action");
         TextField durationField = new TextField();
         durationField.setPromptText("Duration (min)");
@@ -127,7 +127,7 @@ public class ManageMoviesView {
         TextArea descArea = new TextArea(movie.getDescription() != null ? movie.getDescription() : "");
         descArea.setPrefRowCount(2);
         ComboBox<String> genreBox = new ComboBox<>();
-        genreBox.getItems().addAll("Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Romance", "Crime", "Thriller");
+        genreBox.getItems().addAll("Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Romance", "Crime", "Thriller", "Animation");
         genreBox.setValue(movie.getGenre());
         TextField durationField = new TextField(String.valueOf(movie.getDurationMinutes()));
         TextField posterField = new TextField(movie.getPosterUrl() != null ? movie.getPosterUrl() : "");

@@ -1,5 +1,6 @@
 package com.moviereservation.view;
 
+import com.moviereservation.model.Movie;
 import com.moviereservation.model.Showtime;
 import com.moviereservation.model.User;
 import com.moviereservation.repository.MovieRepository;
@@ -9,11 +10,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BrowseMoviesView {
     private final User currentUser;
@@ -36,28 +43,42 @@ public class BrowseMoviesView {
         controls.setAlignment(Pos.CENTER_LEFT);
         DatePicker datePicker = new DatePicker(LocalDate.now());
         ComboBox<String> genreFilter = new ComboBox<>();
-        genreFilter.getItems().addAll("All", "Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Romance", "Crime", "Thriller");
+        genreFilter.getItems().add("All");
         genreFilter.setValue("All");
+        try {
+            for (Movie m : movieRepo.getAllMovies()) {
+                if (!genreFilter.getItems().contains(m.getGenre())) {
+                    genreFilter.getItems().add(m.getGenre());
+                }
+            }
+        } catch (Exception ignored) {}
         Button refreshBtn = new Button("Show Times");
         controls.getChildren().addAll(new Label("Date:"), datePicker, new Label("Genre:"), genreFilter, refreshBtn);
 
-        VBox movieList = new VBox(8);
+        VBox movieList = new VBox(10);
         ScrollPane scrollPane = new ScrollPane(movieList);
         scrollPane.setFitToWidth(true);
 
         Runnable loadMovies = () -> {
             movieList.getChildren().clear();
+            LocalDate selectedDate = datePicker.getValue();
+            if (selectedDate == null) return;
+            String genre = genreFilter.getValue();
             try {
-                List<Showtime> showtimes = showtimeRepo.getShowtimesForDate(datePicker.getValue());
-                String genre = genreFilter.getValue();
-                if (showtimes.isEmpty()) {
-                    movieList.getChildren().add(new Label("No showtimes for this date."));
-                    return;
-                }
+                List<Showtime> showtimes = showtimeRepo.getShowtimesForDate(selectedDate);
+                Map<Integer, List<Showtime>> movieShowtimes = new LinkedHashMap<>();
                 for (Showtime st : showtimes) {
                     if (!"All".equals(genre) && !st.getGenre().equals(genre)) continue;
-                    int available = reservationRepo.getAvailableSeats(st.getId());
-                    movieList.getChildren().add(createShowtimeCard(st, available));
+                    movieShowtimes.computeIfAbsent(st.getMovieId(), k -> new ArrayList<>()).add(st);
+                }
+                if (movieShowtimes.isEmpty()) {
+                    movieList.getChildren().add(new Label("No showtimes for " + selectedDate.format(DateTimeFormatter.ofPattern("MMM d, yyyy")) + "."));
+                    return;
+                }
+                for (Map.Entry<Integer, List<Showtime>> entry : movieShowtimes.entrySet()) {
+                    Movie movie = movieRepo.getMovieById(entry.getKey());
+                    if (movie == null) continue;
+                    movieList.getChildren().add(createMovieCard(movie, entry.getValue(), selectedDate));
                 }
             } catch (Exception e) {
                 movieList.getChildren().add(new Label("Error: " + e.getMessage()));
@@ -65,6 +86,7 @@ public class BrowseMoviesView {
         };
 
         refreshBtn.setOnAction(e -> loadMovies.run());
+        datePicker.setOnAction(e -> loadMovies.run());
         genreFilter.setOnAction(e -> loadMovies.run());
         loadMovies.run();
 
@@ -74,24 +96,63 @@ public class BrowseMoviesView {
         return outer;
     }
 
-    private HBox createShowtimeCard(Showtime st, int available) {
-        HBox card = new HBox(10);
-        card.setPadding(new Insets(8));
-        card.setStyle("-fx-border-color: gray; -fx-border-width: 1; -fx-background-radius: 4;");
-        card.setAlignment(Pos.CENTER_LEFT);
+    private VBox createMovieCard(Movie movie, List<Showtime> showtimes, LocalDate date) {
+        VBox card = new VBox(6);
+        card.setPadding(new Insets(12));
+        card.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-radius: 6; -fx-background-color: #fafafa;");
 
-        Label info = new Label(st.getMovieTitle() + " | " + st.getGenre() + " | "
-            + st.getDurationMinutes() + " min | " + st.getShowTime() + " | "
-            + available + " seats | $" + String.format("%.2f", st.getPrice()));
+        HBox topRow = new HBox(12);
+        topRow.setAlignment(Pos.CENTER_LEFT);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        ImageView poster = new ImageView();
+        poster.setFitWidth(80);
+        poster.setFitHeight(120);
+        poster.setPreserveRatio(true);
+        if (movie.getPosterUrl() != null && !movie.getPosterUrl().isEmpty()) {
+            try {
+                poster.setImage(new Image(movie.getPosterUrl()));
+            } catch (Exception ignored) {}
+        }
+        if (poster.getImage() == null) {
+            Label noPoster = new Label("[No Poster]");
+            noPoster.setStyle("-fx-font-size: 11px; -fx-text-fill: #999;");
+            noPoster.setMinWidth(80);
+            noPoster.setMinHeight(120);
+            noPoster.setAlignment(Pos.CENTER);
+            poster = null;
+            topRow.getChildren().add(noPoster);
+        } else {
+            topRow.getChildren().add(poster);
+        }
 
-        Button reserveBtn = new Button("Reserve");
-        reserveBtn.setDisable(available <= 0);
-        reserveBtn.setOnAction(e -> showSeatSelection(st));
+        VBox infoBox = new VBox(4);
+        Label title = new Label(movie.getTitle());
+        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
+        Label meta = new Label(movie.getGenre() + " | " + movie.getDurationMinutes() + " min");
+        meta.setStyle("-fx-text-fill: #555555;");
+        Label desc = new Label(movie.getDescription());
+        desc.setWrapText(true);
+        desc.setStyle("-fx-text-fill: #333333;");
+        infoBox.getChildren().addAll(title, meta, desc);
+        HBox.setHgrow(infoBox, Priority.ALWAYS);
+        topRow.getChildren().add(infoBox);
 
-        card.getChildren().addAll(info, spacer, reserveBtn);
+        FlowPane showtimeButtons = new FlowPane(6, 6);
+        for (Showtime st : showtimes) {
+            int available = 0;
+            try { available = reservationRepo.getAvailableSeats(st.getId()); } catch (Exception ignored) {}
+            String label = st.getShowTime() + " - " + available + " seats ($" + String.format("%.0f", st.getPrice()) + ")";
+            Button btn = new Button(label);
+            btn.setDisable(available <= 0);
+            btn.setStyle("-fx-font-size: 11px;");
+            btn.setOnAction(e -> showSeatSelection(st));
+            showtimeButtons.getChildren().add(btn);
+        }
+
+        Label showtimeHeader = new Label("Showtimes for " + date.format(DateTimeFormatter.ofPattern("MMM d, yyyy")) + ":");
+        showtimeHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 12px;");
+
+        card.getChildren().addAll(topRow, showtimeHeader, showtimeButtons);
         return card;
     }
 
@@ -122,7 +183,6 @@ public class BrowseMoviesView {
 
             for (int row = 0; row < 10; row++) {
                 for (int col = 0; col < 10; col++) {
-                    int currentSeat = seatNum;
                     ToggleButton seatBtn = new ToggleButton(String.valueOf(seatNum));
                     seatBtn.setPrefSize(38, 38);
 
@@ -132,6 +192,7 @@ public class BrowseMoviesView {
                         seatBtn.setText("X");
                     }
 
+                    int sn = seatNum;
                     seatBtn.setOnAction(e -> {
                         if (seatBtn.isSelected()) {
                             seatBtn.setStyle("-fx-background-color: lightgreen;");
@@ -159,7 +220,7 @@ public class BrowseMoviesView {
             Button confirmBtn = new Button("Confirm Reservation");
             confirmBtn.setMaxWidth(Double.MAX_VALUE);
             confirmBtn.setOnAction(e -> {
-                List<Integer> selectedSeats = new java.util.ArrayList<>();
+                List<Integer> selectedSeats = new ArrayList<>();
                 for (int r = 0; r < 10; r++) {
                     for (int c = 0; c < 10; c++) {
                         if (seats[r][c].isSelected() && !seats[r][c].isDisabled()) {
