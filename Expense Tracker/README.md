@@ -48,11 +48,34 @@ javac Expense.java ExpenseManager.java Main.java
 | **Set budget** | `java Main budget --month 8 --amount 500` |
 | **Export to CSV** | `java Main export --path expenses.csv` |
 
-## 📂 Project Structure
+## 🖥 JavaFX GUI
+
+A graphical interface is also available using JavaFX.
+
+### Running the GUI
+
+Make sure you have [Maven](https://maven.apache.org/) installed, then from the `Expense Tracker/` directory:
+
+```bash
+mvn javafx:run
+```
+
+The GUI provides:
+- Input fields for description, amount, and category
+- Add / Update / Delete buttons
+- Expense table with all records
+- Category filter
+- Total and monthly summary views
+- CSV export button
+
+### Project Structure (Maven)
 ```text
-expense-tracker/
-├── Main.java           # Entry point & CLI argument parsing
-├── ExpenseManager.java # Core logic for CRUD, persistence & summaries
-├── Expense.java        # Data model for an Expense object
-└── expenses.json       # Local storage (auto-generated)
+Expense Tracker/
+├── pom.xml                              # Maven build config + JavaFX dependencies
+├── src/main/java/com/roadmap/
+│   ├── Main.java                        # CLI entry point
+│   ├── Expense.java                     # Data model
+│   ├── ExpenseManager.java              # Core logic
+│   └── ExpenseTrackerApp.java           # JavaFX GUI application
+└── expenses.json                        # Local storage (auto-generated)
 ```

@@ -1,1 +1,4 @@
 *.class
+target/
+expenses.json
+expenses_export.csv
