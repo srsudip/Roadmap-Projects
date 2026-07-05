@@ -2,17 +2,9 @@
 
 ## Prerequisites
 
-| Tool | Install |
+| Tool | Version |
 |------|---------|
-| **Colima** | `brew install colima` |
-| **Docker CLI** | `brew install docker` |
-| **Docker Compose** | `brew install docker-compose` |
-
-## Start Colima
-
-```bash
-colima start --cpu 4 --memory 8 --disk 20
-```
+| **Docker Desktop** | 24+ |
 
 ## Build & Start
 
@@ -38,12 +30,6 @@ docker compose down --rmi all --volumes --remove-orphans
 # Clean orphan Docker resources system-wide
 docker image prune -af
 docker volume prune -f
-```
-
-## Stop Colima
-
-```bash
-colima stop
 ```
 
 ## URLs
