@@ -90,8 +90,8 @@ public class ReservationRepository {
             + "FROM reservations r "
             + "JOIN showtimes s ON r.showtime_id = s.id "
             + "JOIN movies m ON s.movie_id = m.id "
-            + "WHERE r.user_id = ? AND r.status = 'ACTIVE' "
-            + "AND (s.show_date > CURRENT_DATE OR (s.show_date = CURRENT_DATE AND s.show_time >= CURRENT_TIME)) "
+            +             "WHERE r.user_id = ? AND r.status = 'ACTIVE' "
+            + "AND s.show_date >= CURRENT_DATE "
             + "ORDER BY s.show_date, s.show_time");
         ps.setInt(1, userId);
         ResultSet rs = ps.executeQuery();
