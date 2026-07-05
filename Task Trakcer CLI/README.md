@@ -1,78 +1,58 @@
-# Task Tracker CLI
+# Task Tracker CLI (Java)
 
-A lightweight, zero-dependency Command Line Interface (CLI) application written in Java for managing your daily tasks. This project was built to demonstrate core Java programming skills, including file I/O, manual JSON serialization, regular expressions, and command-line argument parsing.
+A lightweight Command Line Interface (CLI) application used to manage tasks and to-do lists. This project was built as part of the **[roadmap.sh Task Tracker challenge](https://roadmap.sh/projects/task-tracker)**.
 
-## 🚀 Features
+## 📝 Project Description
+This application allows users to track what needs to be done, what is currently in progress, and what has been completed. It provides a simple terminal interface to manage tasks while ensuring data persistence using a local JSON file.
 
-Manage your productivity directly from the terminal:
-- **Add Tasks:** Quickly create new tasks with a unique ID.
-- **Update Tasks:** Modify task descriptions at any time.
-- **Track Progress:** Easily move tasks between `todo`, `in-progress`, and `done` statuses.
-- **Delete Tasks:** Clean up your list by removing completed or unwanted tasks.
-- **Smart Listing:** View all tasks or filter them by their specific status.
-- **Local Persistence:** All data is automatically saved to a local `tasks.json` file.
+**Challenge Link:** [https://roadmap.sh/projects/task-tracker](https://roadmap.sh/projects/task-tracker)
 
-## 🛠 Technical Constraints (The "No Libraries" Challenge)
+## ✨ Features
+- **Add Tasks:** Create new tasks with unique IDs and timestamps.
+- **Update Tasks:** Modify the description of existing tasks.
+- **Manage Status:** Easily mark tasks as `todo`, `in-progress`, or `done`.
+- **Delete Tasks:** Remove tasks from your list.
+- **Filter & List:** View all tasks or filter by specific statuses (`todo`, `in-progress`, `done`).
+- **Data Persistence:** All data is saved to a local `tasks.json` file using native Java File I/O.
 
-To maximize learning, this project adheres to the following constraints:
+## 🛠 Technical Implementation Details
+To demonstrate fundamental programming skills, this project adheres to the following constraints:
+- **No External Libraries:** No JSON parsing libraries (like Jackson or Gson) were used. I implemented a custom JSON serializer and parser using `java.util.regex` and String manipulation.
 - **Language:** Java (Standard Edition).
-- **Zero External Dependencies:** No Maven/Gradle dependencies or JSON libraries were used.
-- **Manual Serialization:** Implemented a custom logic to convert Java objects into JSON strings using `StringBuilder`.
-- **Regex Parsing:** Utilized `java.util.regex` to parse and reconstruct data from the filesystem.
-
-## 📋 Prerequisites
-
-To run this application, you must have:
-- **Java Development Kit (JDK) 11** or higher installed on your system.
-
----
+- **Data Format:** Standard JSON structure for portability and readability.
 
 ## 🚀 Getting Started
 
-### 1. Clone the Project
-```bash
-git clone <your-repo-link>
-cd task-tracker
-```
+### Prerequisites
+- **Java Development Kit (JDK) 11** or higher must be installed on your system.
 
-### 2. Compile the Application
-Open your terminal in the project directory and run:
+### Compilation
+To compile the application, run the following command in your terminal:
 ```bash
 javac TaskStatus.java Task.java TaskManager.java Main.java
 ```
 
-### 3. Usage Guide
+### Usage Examples
+Once compiled, you can use the following commands:
 
-The application is executed using `java Main <command> [arguments]`.
-
-| Action | Command Example | Description |
-| :--- | :--- | :--- |
-| **Add a task** | `java Main add "Buy groceries"` | Creates a new `todo` task. |
-| **Update task** | `java Main update 1 "New description"` | Changes the text of an existing task ID. |
-| **Delete task** | `java Main delete 1` | Removes task with specified ID. |
-| **Start working** | `java Main mark-in-progress 1` | Sets status to `in-progress`. |
-| **Mark as done** | `java Main mark-done 1` | Sets status to `done`. |
-| **List all tasks** | `java Main list` | Displays everything in the list. |
-| **Filter by status**| `java Main list done` | Shows only `done` (or `todo`/`in-progress`) tasks. |
-
----
+| Action | Command Example |
+| :--- | :--- |
+| **Add a task** | `java Main add "Buy groceries"` |
+| **Update task** | `java Main update 1 "Buy milk and bread"` |
+| **Mark as in-progress** | `java Main mark-in-progress 1` |
+| **Mark as done** | `java Main mark-done 1` |
+| **Delete a task** | `java Main delete 1` |
+| **List all tasks** | `java Main list` |
+| **Filter by status** | `java Main list done` |
 
 ## 📂 Project Structure
-
 ```text
 task-tracker/
-├── Main.java           # CLI entry point and command routing
-├── TaskManager.java    # Logic for file I/O and data manipulation
-├── Task.java           # The Task Data Model
-├── TaskStatus.java     # Enum representing task states
-└── tasks.json          # Local storage (generated automatically)
+├── Main.java           # Entry point & command argument parsing
+├── TaskManager.java    # Core logic for file I/O and task manipulation
+├── Task.java           # Data model for a Task object
+├── TaskStatus.java     # Enum representing the three task states
+└── tasks.json          # Local storage file (auto-generated)
 ```
-
-## 🛡 Error Handling
-
-The application handles several edge cases:
-- **Missing Arguments:** Provides usage instructions if a command is called incorrectly.
-- **Invalid IDs:** Gracefully handles attempts to update or delete non-existent IDs.
-- **File Management:** Automatically creates `tasks.json` if it doesn't exist and prevents data loss by reading the file before every modification.
 
 ---
