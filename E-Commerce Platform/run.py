@@ -8,8 +8,10 @@ import subprocess
 import signal
 import sys
 import os
+import time
 
 COMPOSE_DIR = os.path.dirname(os.path.abspath(__file__))
+HEALTH_TIMEOUT = 300  # seconds
 
 
 def run(cmd, **kwargs):
@@ -22,6 +24,24 @@ def cleanup():
     print("\n[CLEANUP] Stopping e-commerce containers...")
     run(["docker", "compose", "down", "--rmi", "all", "--volumes", "--remove-orphans"])
     print("[CLEANUP] Done.")
+
+
+def wait_for_health():
+    """Poll compose until no container is starting/unhealthy, or timeout."""
+    deadline = time.time() + HEALTH_TIMEOUT
+    while time.time() < deadline:
+        out = subprocess.run(
+            ["docker", "compose", "ps", "--format", "{{.Name}} {{.Status}}"],
+            cwd=COMPOSE_DIR, capture_output=True, text=True,
+        ).stdout
+        pending = [l for l in out.splitlines()
+                   if "starting" in l or "unhealthy" in l]
+        if not pending:
+            return True
+        print(f"[WAIT] {len(pending)} container(s) not healthy yet...")
+        time.sleep(10)
+    print("[WARN] Timed out waiting for health. Current state:")
+    return False
 
 
 def handle_signal(sig, frame):
@@ -41,6 +61,7 @@ def main():
         sys.exit(1)
 
     print("[START] Waiting for services to become healthy...")
+    wait_for_health()
     run(["docker", "compose", "ps"])
     print()
     print("=" * 50)

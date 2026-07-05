@@ -2,7 +2,7 @@
 
 A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, and Docker — following the [roadmap.sh Scalable E-Commerce Platform](https://roadmap.sh/projects/scalable-ecommerce-platform) project specification.
 
-> **Quick start:** See [`RUNNER.md`](RUNNER.md) for step-by-step setup and run instructions.
+> **Quick start:** `python3 run.py` — builds, starts, and tails all containers; Ctrl+C stops and cleans up. See [`RUNNER.md`](RUNNER.md) for details.
 
 ## Architecture
 
@@ -39,16 +39,22 @@ A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, 
               │ :5434      │  │ :5437     │  │ :5438    │
               └────────────┘  └───────────┘  └──────────┘
 
-         ┌──────────────┐     ┌─────────────────┐
-         │   RabbitMQ   │────►│  Eureka Server   │
-         │ :5672/:15672 │     │     :8761        │
-         └──────────────┘     └─────────────────┘
+     Order Service ──events──► ┌──────────────┐ ──consumes──► Notif. Service
+                               │   RabbitMQ   │
+                               │ :5672/:15672 │
+                               └──────────────┘
+
+                          ┌─────────────────┐
+                          │  Eureka Server  │  (all services register here)
+                          │      :8761      │
+                          └─────────────────┘
 ```
 
 ## Project Structure
 
 ```
 E-Commerce Platform/
+├── run.py                            # One-command start/stop/cleanup script
 ├── Dockerfile                        # Multi-stage build (build → development → production)
 ├── docker-compose.yml                # Development: hot-reload, volume mounts
 ├── docker-compose-prod.yml           # Production: pre-built images, no build context
@@ -213,6 +219,7 @@ curl -X PUT http://localhost:8080/api/payments/1/refund
 ### Order Service
 - Order lifecycle: `PENDING → SHIPPED → DELIVERED` (or `CANCELLED`)
 - Calculates total from cart items
+- Publishes `ORDER_CREATED`, `ORDER_STATUS_UPDATED`, and `ORDER_CANCELLED` events to RabbitMQ (`notification.queue`) — best-effort, orders succeed even if the broker is down
 
 ### Payment Service
 - Simulated payment gateway (UUID transaction IDs)
@@ -220,9 +227,10 @@ curl -X PUT http://localhost:8080/api/payments/1/refund
 - Refund capability
 
 ### Notification Service
-- RabbitMQ-driven async notifications
-- Event types: ORDER_CONFIRMATION, PAYMENT_RECEIVED, ORDER_SHIPPED, ORDER_DELIVERED
+- RabbitMQ-driven async notifications: consumes order events from `notification.queue` and persists an email notification per event
+- Notification types: ORDER_CONFIRMATION (on order creation), SHIPPING_UPDATE (on status change/cancel), PAYMENT_RECEIVED, PAYMENT_FAILED, PROMOTIONAL
 - Simulated email/SMS channels
+- Also exposes a direct REST endpoint (`/api/notifications`)
 
 ## Stopping
 

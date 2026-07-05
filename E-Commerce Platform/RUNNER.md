@@ -8,6 +8,16 @@
 
 ## Build & Start
 
+**Option A — one command (recommended):**
+
+```bash
+python3 run.py
+```
+
+Builds and starts everything, waits for health, prints URLs, tails logs. Ctrl+C stops and cleans up all containers, images, and volumes.
+
+**Option B — manual:**
+
 ```bash
 docker compose up -d --build
 ```

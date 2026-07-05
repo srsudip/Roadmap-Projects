@@ -40,7 +40,9 @@ The E-Commerce Platform (project #6) has been built with production-grade patter
 - **Dev/Prod separation** — `docker-compose.yml` for development, `docker-compose-prod.yml` for production
 - **CI/CD** — GitHub Actions pipeline: test → build → push to GHCR → deploy
 - **Database isolation** — 6 separate PostgreSQL instances with init scripts
+- **Event-driven notifications** — order service publishes order events to RabbitMQ; notification service consumes and persists them
 - **16 containers** — 8 backend microservices + 6 databases + RabbitMQ + Frontend
+- **One-command run** — `python3 run.py` builds, starts, waits for health, and cleans up on Ctrl+C
 
 See [`E-Commerce Platform/RUNNER.md`](E-Commerce%20Platform/RUNNER.md) for step-by-step setup instructions.
 
