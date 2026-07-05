@@ -41,9 +41,25 @@ public class NotificationService {
     }
 
     @RabbitListener(queues = "notification.queue")
-    public void handleOrderEvent(String message) {
-        System.out.println("Received order event: " + message);
-        // Process order event and send appropriate notification
+    public void handleOrderEvent(java.util.Map<String, Object> event) {
+        System.out.println("Received order event: " + event);
+
+        Long userId = ((Number) event.get("userId")).longValue();
+        String eventType = String.valueOf(event.get("event"));
+        String orderId = String.valueOf(event.get("orderId"));
+        String status = String.valueOf(event.get("status"));
+
+        Notification.NotificationType type = "ORDER_CREATED".equals(eventType)
+            ? Notification.NotificationType.ORDER_CONFIRMATION
+            : Notification.NotificationType.SHIPPING_UPDATE;
+
+        NotificationRequest request = new NotificationRequest();
+        request.setUserId(userId);
+        request.setSubject("Order #" + orderId + " " + status);
+        request.setMessage("Your order #" + orderId + " is now " + status + ".");
+        request.setType(type.name());
+        request.setChannel(Notification.NotificationChannel.EMAIL.name());
+        sendNotification(request);
     }
 
     public List<Notification> getUserNotifications(Long userId) {

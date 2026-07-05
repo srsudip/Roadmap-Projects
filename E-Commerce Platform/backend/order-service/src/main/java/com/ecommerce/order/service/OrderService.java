@@ -1,20 +1,39 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.order.config.RabbitMQConfig;
 import com.ecommerce.order.model.*;
 import com.ecommerce.order.repository.OrderRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final RabbitTemplate rabbitTemplate;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, RabbitTemplate rabbitTemplate) {
         this.orderRepository = orderRepository;
+        this.rabbitTemplate = rabbitTemplate;
+    }
+
+    private void publishOrderEvent(Order order, String event) {
+        try {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.NOTIFICATION_QUEUE, Map.of(
+                "event", event,
+                "orderId", order.getId(),
+                "userId", order.getUserId(),
+                "status", order.getStatus().name()
+            ));
+        } catch (Exception e) {
+            // ponytail: notification is best-effort; order must not fail if broker is down
+            System.err.println("Failed to publish order event: " + e.getMessage());
+        }
     }
 
     public List<Order> getUserOrders(Long userId) {
@@ -48,14 +67,18 @@ public class OrderService {
             order.addItem(item);
         }
 
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        publishOrderEvent(saved, "ORDER_CREATED");
+        return saved;
     }
 
     @Transactional
     public Order updateOrderStatus(Long orderId, Order.OrderStatus status) {
         Order order = getOrderById(orderId);
         order.setStatus(status);
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        publishOrderEvent(saved, "ORDER_STATUS_UPDATED");
+        return saved;
     }
 
     @Transactional
@@ -66,7 +89,9 @@ public class OrderService {
             throw new RuntimeException("Cannot cancel order that has been shipped or delivered");
         }
         order.setStatus(Order.OrderStatus.CANCELLED);
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        publishOrderEvent(saved, "ORDER_CANCELLED");
+        return saved;
     }
 
     public List<Order> getAllOrders() {
