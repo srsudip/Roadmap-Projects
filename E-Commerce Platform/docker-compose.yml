@@ -110,11 +110,12 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Microservices ───────────────────────────────────
+  # ── Backend Microservices ───────────────────────────
   eureka-server:
     build:
-      context: .
-      dockerfile: eureka-server/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: eureka-server
     ports:
       - "8761:8761"
     healthcheck:
@@ -125,8 +126,9 @@ services:
 
   user-service:
     build:
-      context: .
-      dockerfile: user-service/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: user-service
     ports:
       - "8081:8081"
     environment:
@@ -148,8 +150,9 @@ services:
 
   product-service:
     build:
-      context: .
-      dockerfile: product-service/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: product-service
     ports:
       - "8082:8082"
     environment:
@@ -171,8 +174,9 @@ services:
 
   cart-service:
     build:
-      context: .
-      dockerfile: cart-service/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: cart-service
     ports:
       - "8083:8083"
     environment:
@@ -194,8 +198,9 @@ services:
 
   order-service:
     build:
-      context: .
-      dockerfile: order-service/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: order-service
     ports:
       - "8084:8084"
     environment:
@@ -217,8 +222,9 @@ services:
 
   payment-service:
     build:
-      context: .
-      dockerfile: payment-service/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: payment-service
     ports:
       - "8085:8085"
     environment:
@@ -240,8 +246,9 @@ services:
 
   notification-service:
     build:
-      context: .
-      dockerfile: notification-service/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: notification-service
     ports:
       - "8086:8086"
     environment:
@@ -267,11 +274,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── API Gateway ─────────────────────────────────────
   api-gateway:
     build:
-      context: .
-      dockerfile: api-gateway/Dockerfile
+      context: ./backend
+      args:
+        SERVICE: api-gateway
     ports:
       - "8080:8080"
     environment:
@@ -286,10 +293,9 @@ services:
       retries: 5
 
   # ── Frontend ───────────────────────────────────────
-  frontend-service:
+  frontend:
     build:
-      context: .
-      dockerfile: frontend-service/Dockerfile
+      context: ./frontend/frontend-service
     ports:
       - "3000:3000"
     environment:

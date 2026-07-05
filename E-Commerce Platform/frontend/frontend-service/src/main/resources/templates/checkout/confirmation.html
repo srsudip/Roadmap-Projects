@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<body>
+<div th:fragment="content" class="container">
+    <div style="text-align:center; padding:2rem 0;">
+        <div style="font-size:4rem; margin-bottom:1rem;">&#10004;</div>
+        <h1 style="margin-bottom:0.5rem; color:var(--success);">Order Confirmed!</h1>
+        <p style="color:var(--text-light); font-size:1.1rem;">Thank you for your purchase.</p>
+    </div>
+
+    <div class="card" style="max-width:600px; margin:0 auto;" th:if="${order}">
+        <div class="card-header">
+            Order #<span th:text="${order.id}">1</span>
+        </div>
+        <div class="card-body">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
+                <span style="color:var(--text-light);">Status</span>
+                <span class="badge"
+                      th:classappend="'badge-' + ${order.status.toLowerCase()}"
+                      th:text="${order.status}">PENDING</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
+                <span style="color:var(--text-light);">Total</span>
+                <span style="font-weight:700;" th:text="'€' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">$0.00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
+                <span style="color:var(--text-light);">Shipping To</span>
+                <span th:text="${order.shippingAddress}">Address</span>
+            </div>
+
+            <div th:if="${order.items}" style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
+                <div th:each="item : ${order.items}" style="display:flex; justify-content:space-between; padding:0.4rem 0;">
+                    <span th:text="${item.productName} + ' x' + ${item.quantity}">Product x1</span>
+                    <span th:text="'€' + ${#numbers.formatDecimal(item.price * item.quantity, 1, 2)}">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align:center; margin-top:2rem;">
+        <a th:href="@{/orders}" class="btn btn-primary">View My Orders</a>
+        <a th:href="@{/products}" class="btn btn-outline" style="margin-left:0.5rem;">Continue Shopping</a>
+    </div>
+</div>
+</body>
+</html>

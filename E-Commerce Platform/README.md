@@ -43,6 +43,29 @@ A microservices-based e-commerce platform built with Spring Boot, Spring Cloud, 
          └──────────────┘     └─────────────────┘
 ```
 
+## Project Structure
+
+```
+E-Commerce Platform/
+├── docker-compose.yml            # Full stack orchestration
+├── backend/
+│   ├── pom.xml                   # Multi-module parent POM (8 services)
+│   ├── Dockerfile                # Parameterized (ARG SERVICE=)
+│   ├── eureka-server/            # Service discovery
+│   ├── api-gateway/              # API routing
+│   ├── user-service/             # Auth & user management
+│   ├── product-service/          # Product catalog (30 products)
+│   ├── cart-service/             # Shopping cart
+│   ├── order-service/            # Order processing
+│   ├── payment-service/          # Payment handling
+│   └── notification-service/     # Async notifications
+└── frontend/
+    └── frontend-service/
+        ├── pom.xml               # Standalone Spring Boot
+        ├── Dockerfile
+        └── src/                  # Thymeleaf web UI
+```
+
 ## Services
 
 | Service | Port | Database | Description |
@@ -90,6 +113,23 @@ docker compose ps
 
 Open the web UI at **http://localhost:3000**.
 
+### Default Admin Credentials
+
+- **Username:** `admin`
+- **Password:** `admin123`
+
+## Frontend Web UI
+
+The platform includes a full-featured web interface built with Spring Boot + Thymeleaf:
+
+- **Browse Products** — 30 products with images across 5 categories, search, and category filter
+- **Shopping Cart** — Add/remove items, adjust quantities
+- **Checkout** — Shipping address, payment method selection
+- **My Orders** — View order history, cancel pending orders
+- **Admin Dashboard** — Stats, manage products, view all orders/users
+
+All prices are displayed in **euros (€)**.
+
 ## API Endpoints
 
 All requests go through the **API Gateway** at `http://localhost:8080`.
@@ -110,7 +150,7 @@ curl -X POST http://localhost:8080/api/users/login \
 ### Products
 ```bash
 # List all products
-curl http://localhost:8080/api/products/
+curl http://localhost:8080/api/products
 
 # Search by name
 curl "http://localhost:8080/api/products/search?name=laptop"
@@ -124,7 +164,7 @@ curl http://localhost:8080/api/products/category/1
 # Add to cart
 curl -X POST http://localhost:8080/api/cart/1/items \
   -H "Content-Type: application/json" \
-  -d '{"productId":1,"quantity":2}'
+  -d '{"productId":1,"productName":"Headphones","price":79.99,"quantity":2}'
 
 # View cart
 curl http://localhost:8080/api/cart/1
@@ -133,9 +173,9 @@ curl http://localhost:8080/api/cart/1
 ### Orders
 ```bash
 # Create order
-curl -X POST http://localhost:8080/api/orders/ \
+curl -X POST http://localhost:8080/api/orders \
   -H "Content-Type: application/json" \
-  -d '{"userId":1,"shippingAddress":"123 Main St"}'
+  -d '{"userId":1,"shippingAddress":"123 Main St","items":[{"productId":1,"productName":"Headphones","price":79.99,"quantity":2}]}'
 
 # View order
 curl http://localhost:8080/api/orders/1
@@ -147,9 +187,9 @@ curl -X PUT http://localhost:8080/api/orders/1/cancel
 ### Payments
 ```bash
 # Process payment
-curl -X POST http://localhost:8080/api/payments/ \
+curl -X POST http://localhost:8080/api/payments \
   -H "Content-Type: application/json" \
-  -d '{"orderId":1,"userId":1,"amount":99.99,"method":"CREDIT_CARD"}'
+  -d '{"orderId":1,"userId":1,"amount":159.98,"method":"CREDIT_CARD"}'
 
 # Refund
 curl -X PUT http://localhost:8080/api/payments/1/refund
@@ -163,7 +203,8 @@ curl -X PUT http://localhost:8080/api/payments/1/refund
 - Endpoints: register, login, get/update/delete users
 
 ### Product Service
-- Categories with products
+- 30 products across 5 categories (Electronics, Clothing, Books, Home & Garden, Sports)
+- Product images included
 - Search by name, filter by category
 - Stock management
 
@@ -190,30 +231,3 @@ curl -X PUT http://localhost:8080/api/payments/1/refund
 ```bash
 docker compose down
 ```
-
-## Project Structure
-
-```
-E-Commerce Platform/
-├── pom.xml                          # Parent POM (multi-module)
-├── docker-compose.yml               # Full stack orchestration
-├── eureka-server/                   # Service discovery
-├── api-gateway/                     # API routing
-├── frontend-service/                # Thymeleaf web UI (port 3000)
-├── user-service/                    # Auth & user management
-├── product-service/                 # Product catalog (30 products)
-├── cart-service/                    # Shopping cart
-├── order-service/                   # Order processing
-├── payment-service/                 # Payment handling
-└── notification-service/            # Async notifications
-```
-
-## Frontend Web UI
-
-The platform includes a full-featured web interface built with Spring Boot + Thymeleaf:
-
-- **Browse Products** — Search, filter by category, view details
-- **Shopping Cart** — Add/remove items, adjust quantities
-- **Checkout** — Shipping address, payment method selection
-- **My Orders** — View order history, cancel pending orders
-- **Admin Dashboard** — Stats, manage products (add/delete), view all orders/users
